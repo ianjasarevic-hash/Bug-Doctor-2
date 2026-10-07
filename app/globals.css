@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #151618;
+  --surface: #202226;
+  --border: #383C43;
+  --primary: #8BACFF;
+  --primary-foreground: #151618;
+  --text: #F2F3F5;
+  --text-muted: #ACB2BE;
+}
+
+html {
+  background: var(--bg);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Code: disable programming ligatures ("=>" → "⇒", "!=" → "≠", etc.) so
+   syntactic glyphs stay as-is. Applies to <pre>, <code>, .code-block. */
+pre,
+code,
+.code-block {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* Selection */
+::selection {
+  background: rgba(139, 172, 255, 0.25);
+  color: var(--text);
+}
+
+/* Focus ring (AA-visible) */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth scrolling + respect reduced motion */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Subtle grid background utility */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(56, 60, 67, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 60, 67, 0.25) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: -1px -1px;
+}
+
+.bg-grid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* Code block subtle scanline */
+.code-scan {
+  background-image: linear-gradient(transparent 0 23px, rgba(56, 60, 67, 0.18) 23px 24px);
+  background-size: 100% 24px;
+}
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
