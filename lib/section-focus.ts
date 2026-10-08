@@ -5,7 +5,9 @@
  *  When the user clicks an in-page link (nav, announcement bar,
  *  hero CTA, footer — anything with `href="#..."`), the page
  *  content wrapper briefly scales up and settles back to 1.0 as
- *  the browser's smooth scroll lands at the destination.
+ *  the browser's smooth scroll lands at the destination. The
+ *  particle burst (lib/particle-transition.ts) is a separate
+ *  fixed-position layer on top — they don't conflict.
  *
  *  Why a `click` listener instead of `hashchange`?
  *  ─────────────────────────────────────────────
@@ -98,16 +100,11 @@ export function initSectionFocusTracker(): () => void {
   // component rendered it. `closest("a[href^='#']")` walks up the
   // DOM from the click target to find the link (handles clicks
   // on child elements like icons or text spans).
-  //
-  // Skip links whose closest ancestor carries `data-zoom-target` —
-  // those are owned by the camera-zoom transition
-  // (lib/zoom-transition.ts) and get their own two-phase animation.
   const onClick = (e: MouseEvent) => {
     const target = e.target;
     if (!(target instanceof Element)) return;
     const link = target.closest("a[href^='#']");
     if (!(link instanceof HTMLAnchorElement)) return;
-    if (link.closest("[data-zoom-target]")) return;
     const href = link.getAttribute("href");
     if (!href || href === "#") return;
     triggerVacuum();

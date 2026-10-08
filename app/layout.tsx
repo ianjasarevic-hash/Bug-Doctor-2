@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ZoomBoundary } from "@/components/zoom-boundary";
+import { ParticleBoundary } from "@/components/particle-boundary";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -69,13 +69,11 @@ export default function RootLayout({
             and keeping the transform on this element — instead of
             on <body> — leaves the body's containing block and
             stacking context untouched, so click hit-testing on the
-            nav and other in-page buttons stays correct mid-animation.
-            The camera-zoom transition (lib/zoom-transition.ts) also
-            targets this same wrapper. */}
+            nav and other in-page buttons stays correct mid-animation. */}
         <div id="page-content" className="relative z-10">
           {children}
         </div>
-        <ZoomBoundary />
+        <ParticleBoundary />
       </body>
     </html>
   );

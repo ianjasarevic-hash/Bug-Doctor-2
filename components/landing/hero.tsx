@@ -130,7 +130,7 @@ export function Hero() {
                   : { delay: 0.5, ...SPRING_GENTLE }
               }
             >
-              <LinkButton href="#waitlist" size="lg" data-zoom-target="#waitlist">
+              <LinkButton href="#waitlist" size="lg" data-particle-target="#waitlist">
                 Join the waitlist
                 <ArrowRight size={16} />
               </LinkButton>
@@ -138,7 +138,7 @@ export function Hero() {
                 href="#how-it-works"
                 variant="secondary"
                 size="lg"
-                data-zoom-target="#how-it-works"
+                data-particle-target="#how-it-works"
               >
                 See how it works
               </LinkButton>
