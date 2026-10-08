@@ -28,7 +28,7 @@ const faqs = [
   },
   {
     q: "When will bug.dr launch?",
-    a: "October 20, 2026. Join the waitlist and we'll email you the link the moment we go live — plus a heads-up the night before. If you're hiring and want early access for your team, mention that in the 'why you'd use it' field.",
+    a: "October 21, 2026. Join the waitlist and we'll email you the link the moment we go live — plus a heads-up the night before. If you're hiring and want early access for your team, mention that in the 'why you'd use it' field.",
   },
 ];
 

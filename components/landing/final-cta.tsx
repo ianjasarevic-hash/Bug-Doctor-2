@@ -80,7 +80,7 @@ export function FinalCta() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              Launching · October 20
+              Launching · October 21
             </motion.p>
             <motion.h2
               id="final-cta-heading"
@@ -99,7 +99,7 @@ export function FinalCta() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              We open on October 20. Get the link the moment we go live — and
+              We open on October 21. Get the link the moment we go live — and
               a heads-up the night before.
             </motion.p>
 

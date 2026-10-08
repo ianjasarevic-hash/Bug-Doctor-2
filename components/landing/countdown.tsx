@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 // Launch target — fix when the launch date moves.
 // Set to midnight UTC so the count is consistent in any timezone.
-const LAUNCH_AT = Date.UTC(2026, 9, 20, 0, 0, 0); // Oct 20, 2026 00:00 UTC
+const LAUNCH_AT = Date.UTC(2026, 9, 21, 0, 0, 0); // Oct 21, 2026 00:00 UTC
 
 function diffParts(target: number) {
   const now = Date.now();

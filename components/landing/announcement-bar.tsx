@@ -25,7 +25,7 @@ export function AnnouncementBar() {
               aria-hidden
               className="inline-flex h-1.5 w-1.5 rounded-full bg-action animate-pulse shrink-0"
             />
-            <span className="text-text">Launching October 20.</span>
+            <span className="text-text">Launching October 21.</span>
             <span aria-hidden className="hidden sm:inline-block h-3 w-px bg-border" />
             <span className="hidden sm:inline text-muted">
               <Countdown />

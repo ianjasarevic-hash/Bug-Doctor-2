@@ -63,7 +63,7 @@ export function Waitlist() {
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="font-mono text-xs uppercase tracking-widest text-action">
-              Launching · October 20
+              Launching · October 21
             </p>
             <h2
               id="waitlist-heading"
@@ -72,7 +72,7 @@ export function Waitlist() {
               Be there day one.
             </h2>
             <p className="mt-4 text-muted text-lg leading-relaxed">
-              bug.dr opens on October 20. The waitlist is how you get the link
+              bug.dr opens on October 21. The waitlist is how you get the link
               before everyone else — and a heads-up the night before. Tell us
               why you&apos;d use it; that&apos;s how we shape what we ship.
             </p>

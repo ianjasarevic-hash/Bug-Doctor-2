@@ -115,7 +115,7 @@ export function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="text-text">launching oct 20</span>
+              <span className="text-text">launching oct 21</span>
               <span aria-hidden className="h-3 w-px bg-border" />
               <span>no install</span>
               <span aria-hidden className="h-3 w-px bg-border" />
