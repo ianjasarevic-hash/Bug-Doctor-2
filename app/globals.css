@@ -185,13 +185,13 @@ html {
   pointer-events: none;
   color: transparent;
   text-shadow:
-    0 0 20px rgba(139, 172, 255, 0.40),
-    0 0 48px rgba(139, 172, 255, 0.18);
+    0 0 16px rgba(139, 172, 255, 0.60),
+    0 0 40px rgba(96, 165, 250, 0.30);
   animation: text-glow-breathe 3.2s ease-in-out infinite;
 }
 @keyframes text-glow-breathe {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.90; }
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1.00; }
 }
 
 /* Softer variant — same pseudo-element technique but a near-white halo
