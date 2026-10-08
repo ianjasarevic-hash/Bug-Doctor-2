@@ -94,6 +94,7 @@ export function Nav() {
               >
                 <Link
                   href={l.href}
+                  data-particle-target={l.href}
                   className="group relative text-sm text-muted hover:text-text transition-colors"
                 >
                   {l.label}

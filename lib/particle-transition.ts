@@ -128,6 +128,10 @@ function spawn(
   options: BurstOptions = {},
 ): void {
   if (typeof window === "undefined") return;
+  // Skip the burst for reduced-motion users. The scroll still
+  // happens (instantly, see smoothScrollTo), but no canvas is
+  // allocated and no rAF loop starts.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   ensureCanvas();
   if (!ctx) return;
 
@@ -269,6 +273,84 @@ export function spawnParticleBurst(
   spawn(fromX, fromY, toX, toY, options);
 }
 
+// ── Custom smooth scroll ─────────────────────────────────────────
+//
+// Why not the browser's native `html { scroll-behavior: smooth }`?
+// The native smooth scroll uses a cubic-bezier curve that can
+// OVERSHOOT the target before settling back — especially for long
+// distances. The user sees the page scroll past the destination and
+// then snap back, which reads as "the scroll went too far." An
+// easeOutCubic curve decelerates to the target asymptotically with
+// zero overshoot, so the page lands exactly where the math says.
+//
+// We also offset the target by the fixed-nav height so the section's
+// content is visible below the nav instead of tucked behind it.
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** Height of the fixed/sticky nav + a little breathing room. */
+function navOffset(): number {
+  if (typeof document === "undefined") return 0;
+  const nav = document.querySelector("header");
+  if (!nav) return 0;
+  return nav.getBoundingClientRect().height + 16;
+}
+
+// Monotonic scroll id — if a new scroll starts while an old one is
+// still running, the old rAF chain bails out. Without this, two
+// concurrent scrolls fight over `window.scrollY` and the page jitters.
+let activeScrollId = 0;
+
+function smoothScrollTo(targetY: number, duration: number): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
+
+    if (prefersReducedMotion()) {
+      window.scrollTo(0, targetY);
+      resolve();
+      return;
+    }
+
+    const myId = ++activeScrollId;
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+
+    if (Math.abs(distance) < 1) {
+      resolve();
+      return;
+    }
+
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      // A newer scroll has started — let it take over.
+      if (myId !== activeScrollId) {
+        resolve();
+        return;
+      }
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // easeOutCubic: 1 - (1-t)^3. Fast start, slow finish, no overshoot.
+      const eased = 1 - Math.pow(1 - t, 3);
+      window.scrollTo(0, startY + distance * eased);
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        resolve();
+      }
+    };
+
+    requestAnimationFrame(step);
+  });
+}
+
 /** Install the global click listener. Idempotent. */
 export function installParticleListeners(): () => void {
   if (installed || typeof document === "undefined") {
@@ -283,11 +365,37 @@ export function installParticleListeners(): () => void {
     if (!trigger) return;
     const dest = trigger.getAttribute("data-particle-target");
     if (!dest) return;
-    // Don't preventDefault — let the link's normal behavior fire
-    // (Next.js <Link> will route, plain <a href="#…"> will jump).
-    // The particles are a visual layer on top of whatever scroll
-    // the browser/router does.
+
+    const destEl = document.querySelector(dest) as HTMLElement | null;
+    if (!destEl) {
+      console.warn(`[particle-transition] target not found: ${dest}`);
+      return;
+    }
+
+    // Suppress the browser's default hash-link jump. The native
+    // smooth scroll (html { scroll-behavior: smooth }) uses a
+    // cubic-bezier that can overshoot, and Next.js <Link>'s
+    // router also kicks in with its own scroll — neither lands
+    // exactly on the target without a fight. We do the scroll
+    // ourselves with easeOutCubic (no overshoot, exact landing)
+    // and push the URL state manually.
+    e.preventDefault();
+
+    // Spawn the particles first so the burst is visible while the
+    // page is still at its starting position. The scroll runs in
+    // parallel via the rAF chain.
     spawnParticleBurst(trigger, dest);
+
+    // Target Y: top of the destination element, offset by the
+    // fixed nav so the section's header is visible below the bar
+    // rather than tucked behind it.
+    const targetY = destEl.getBoundingClientRect().top + window.scrollY - navOffset();
+
+    // Update the URL hash without re-scrolling (pushState doesn't
+    // trigger the browser's default jump-to-anchor behavior).
+    window.history.pushState(null, "", dest);
+
+    void smoothScrollTo(targetY, 750);
   };
 
   document.addEventListener("click", onClick);

@@ -54,6 +54,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/* When a hash link jumps to a section, leave room for the fixed
+   nav so the section's header is visible below the bar instead
+   of tucked behind it. Applies to all hash-link navigation —
+   both the browser's native (footer links, etc.) and the
+   particle-transition's custom scroll (which already subtracts
+   navOffset() in JS, but this keeps non-JS and non-particle
+   navigations consistent). */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
