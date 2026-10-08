@@ -4,14 +4,8 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
+import { joinWaitlist } from "@/lib/supabase";
 
-// Submissions go through FormSubmit (https://formsubmit.co), which forwards
-// POSTed form data to the inbox below. First time a submission arrives,
-// FormSubmit emails a confirmation link — click it once and all subsequent
-// submissions are forwarded automatically. No signup, no API key.
-const WAITLIST_ENDPOINT =
-  "https://formsubmit.co/ajax/support.bug.doctor@gmail.com";
-const WAITLIST_SUBJECT = "bug.dr · waitlist signup";
 const WAITLIST_COUNT: number | null = null;
 
 const reasons = [
@@ -35,24 +29,14 @@ export function Waitlist() {
     if (!email.includes("@")) return;
     setStatus("sending");
 
-    const data = new FormData();
-    data.append("email", email);
-    data.append("company", company);
-    data.append("reason", reason);
-    data.append("_subject", WAITLIST_SUBJECT);
-    data.append("_template", "table");
-    data.append("_captcha", "false");
+    const result = await joinWaitlist({
+      // Normalize so the unique index on lower(email) catches dupes.
+      email: email.trim().toLowerCase(),
+      company: company.trim() || null,
+      reason: reason.trim() || null,
+    });
 
-    try {
-      const res = await fetch(WAITLIST_ENDPOINT, {
-        method: "POST",
-        body: data,
-      });
-      if (!res.ok) throw new Error(`status ${res.status}`);
-      setStatus("ok");
-    } catch {
-      setStatus("err");
-    }
+    setStatus(result.ok ? "ok" : "err");
   }
 
   return (
@@ -219,7 +203,7 @@ export function Waitlist() {
                 {status === "ok"
                   ? "thanks. we'll be in touch."
                   : status === "err"
-                    ? "something went wrong. try again or email support.bug.doctor@gmail.com."
+                    ? "something went wrong. try again in a moment."
                     : "no spam. one email when we open."}
               </div>
 
