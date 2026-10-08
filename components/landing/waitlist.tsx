@@ -5,8 +5,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
 
-const WAITLIST_TO = "hi@bug.dr";
-const WAITLIST_SUBJECT = "bug.dr · waitlist";
+// Submissions go through FormSubmit (https://formsubmit.co), which forwards
+// POSTed form data to the inbox below. First time a submission arrives,
+// FormSubmit emails a confirmation link — click it once and all subsequent
+// submissions are forwarded automatically. No signup, no API key.
+const WAITLIST_ENDPOINT =
+  "https://formsubmit.co/ajax/support.bug.doctor@gmail.com";
+const WAITLIST_SUBJECT = "bug.dr · waitlist signup";
 const WAITLIST_COUNT: number | null = null;
 
 const reasons = [
@@ -20,31 +25,34 @@ export function Waitlist() {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [reason, setReason] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">(
+    "idle",
+  );
   const reduce = useReducedMotion();
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email.includes("@")) return;
-    setSubmitted(true);
-    const body = encodeURIComponent(
-      [
-        "Hi bug.dr,",
-        "",
-        "Add me to the waitlist.",
-        "",
-        `Email: ${email}`,
-        `Company: ${company || "(not provided)"}`,
-        "",
-        "Why I'd use it:",
-        reason || "(not provided)",
-        "",
-        "—",
-      ].join("\n"),
-    );
-    window.location.href = `mailto:${WAITLIST_TO}?subject=${encodeURIComponent(
-      WAITLIST_SUBJECT,
-    )}&body=${body}`;
+    setStatus("sending");
+
+    const data = new FormData();
+    data.append("email", email);
+    data.append("company", company);
+    data.append("reason", reason);
+    data.append("_subject", WAITLIST_SUBJECT);
+    data.append("_template", "table");
+    data.append("_captcha", "false");
+
+    try {
+      const res = await fetch(WAITLIST_ENDPOINT, {
+        method: "POST",
+        body: data,
+      });
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      setStatus("ok");
+    } catch {
+      setStatus("err");
+    }
   }
 
   return (
@@ -139,12 +147,14 @@ export function Waitlist() {
                   input={
                     <input
                       id="wl-email"
+                      name="email"
                       type="email"
                       required
                       autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@somewhere.com"
+                      disabled={status === "sending" || status === "ok"}
                       className={inputClass}
                     />
                   }
@@ -156,11 +166,13 @@ export function Waitlist() {
                   input={
                     <input
                       id="wl-company"
+                      name="company"
                       type="text"
                       autoComplete="organization"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="optional"
+                      disabled={status === "sending" || status === "ok"}
                       className={inputClass}
                     />
                   }
@@ -172,27 +184,43 @@ export function Waitlist() {
                   input={
                     <textarea
                       id="wl-reason"
+                      name="reason"
                       rows={3}
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="one line is fine"
+                      disabled={status === "sending" || status === "ok"}
                       className={`${inputClass} resize-y min-h-[72px]`}
                     />
                   }
                 />
               </div>
 
-              <Button type="submit" size="md" className="mt-6 w-full">
-                Join the waitlist
+              <Button
+                type="submit"
+                size="md"
+                className="mt-6 w-full"
+                disabled={status === "sending" || status === "ok"}
+              >
+                {status === "sending"
+                  ? "Sending…"
+                  : status === "ok"
+                    ? "You're on the list"
+                    : "Join the waitlist"}
               </Button>
 
               <div
-                className="mt-3 font-mono text-[11px] text-muted"
+                className={
+                  "mt-3 font-mono text-[11px] " +
+                  (status === "err" ? "text-diffImpossible" : "text-muted")
+                }
                 role="status"
               >
-                {submitted
+                {status === "ok"
                   ? "thanks. we'll be in touch."
-                  : "no spam. one email when we open."}
+                  : status === "err"
+                    ? "something went wrong. try again or email support.bug.doctor@gmail.com."
+                    : "no spam. one email when we open."}
               </div>
 
               {WAITLIST_COUNT !== null ? (
@@ -209,7 +237,7 @@ export function Waitlist() {
 }
 
 const inputClass =
-  "block w-full h-11 rounded-md border border-border bg-bg px-3 text-sm text-text placeholder:text-muted/70 focus:border-action focus:outline-none";
+  "block w-full h-11 rounded-md border border-border bg-bg px-3 text-sm text-text placeholder:text-muted/70 focus:border-action focus:outline-none disabled:opacity-60";
 
 function Field({
   label,
