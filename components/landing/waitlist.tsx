@@ -6,6 +6,10 @@ import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
 import { joinWaitlist } from "@/lib/supabase";
 
+// Motion-wrapped Button so we can attach the pulse / hover-pop animations
+// without forking the Button component itself.
+const MotionButton = motion.create(Button);
+
 const WAITLIST_COUNT: number | null = null;
 
 const reasons = [
@@ -197,18 +201,45 @@ export function Waitlist() {
                   />
                 </div>
 
-                <Button
+                <MotionButton
                   type="submit"
                   size="md"
                   className="mt-6 w-full !bg-bg !text-action hover:!bg-surface"
                   disabled={status === "sending" || status === "ok"}
+                  // Continuous pop — only when idle (so it stops once the
+                  // user has joined) and only when motion is allowed.
+                  animate={
+                    reduce || status !== "idle"
+                      ? false
+                      : { scale: [1, 1.06, 1] }
+                  }
+                  transition={
+                    reduce
+                      ? undefined
+                      : {
+                          duration: 1.6,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                  }
+                  // On hover: pop out more and add a strong blue halo.
+                  whileHover={
+                    reduce
+                      ? undefined
+                      : {
+                          scale: 1.1,
+                          boxShadow:
+                            "0 0 40px 6px rgba(139, 172, 255, 0.7), 0 0 80px 12px rgba(139, 172, 255, 0.4)",
+                        }
+                  }
+                  whileTap={{ scale: 0.98 }}
                 >
                   {status === "sending"
                     ? "Sending…"
                     : status === "ok"
                       ? "You're on the list"
                       : "Join the waitlist"}
-                </Button>
+                </MotionButton>
 
                 <div
                   className={
