@@ -173,7 +173,38 @@ html {
   background-position: top;
 }
 
+/* ── In-page vacuum transition ─────────────────────────────────────────── */
+
+/* The post-nav-click "vacuum in, spit out" transition. When the
+   user clicks any in-page link, the #page-content wrapper gets
+   `is-vacuuming` for ~0.55s; this keyframe animates the wrapper's
+   transform to scale 1 → 1.4 → 1, anchored at the current viewport
+   center (set by lib/section-focus.ts as a CSS custom property).
+
+   Per-keyframe `animation-timing-function` is what gives the two
+   phases their distinct feel: the vacuum (0% → 35%) uses an
+   accelerating ease-in curve, the spit (35% → 100%) uses a
+   decelerating ease-out curve. This is the same control the Web
+   Animations API gives you, but expressed in plain CSS so it
+   works in every browser without exception.
+
+   The wrapper is sized to the full page, but the transform-origin
+   is set dynamically so the scale always feels like it's pulling
+   the screen toward what the user is currently looking at. */
+@keyframes page-vacuum {
+  0%   { transform: scale(1);   animation-timing-function: cubic-bezier(0.55, 0, 0.85, 0.45); }
+  35%  { transform: scale(1.4); animation-timing-function: cubic-bezier(0.15, 0.55, 0.45, 1); }
+  100% { transform: scale(1); }
+}
+#page-content.is-vacuuming {
+  animation: page-vacuum 0.55s;
+  transform-origin: 50% var(--vacuum-origin-y, 400px);
+  will-change: transform;
+}
+
 /* ── Performance utilities ──────────────────────────────────────────────── */
+
+
 
 /* content-visibility: auto skips rendering work for off-screen sections.
    contain-intrinsic-size tells the browser how tall the section is so the

@@ -3,9 +3,9 @@
 /** Set up the in-page "vacuum in, spit out" transition.
  *
  *  When the user clicks an in-page link (nav, announcement bar,
- *  hero CTA, footer — anything with `href="#..."`), the whole
- *  viewport briefly scales up and settles back to 1.0 as the
- *  browser's smooth scroll lands at the destination.
+ *  hero CTA, footer — anything with `href="#..."`), the page
+ *  content wrapper briefly scales up and settles back to 1.0 as
+ *  the browser's smooth scroll lands at the destination.
  *
  *  Why a `click` listener instead of `hashchange`?
  *  ─────────────────────────────────────────────
@@ -18,24 +18,38 @@
  *  regardless of whether it's a `<Link>`, a plain `<a>`, or a
  *  programmatic navigation.
  *
+ *  Why a CSS class with the reflow trick, not Web Animations API?
+ *  ──────────────────────────────────────────────────────────────
+ *  Earlier versions called `element.animate(...)` directly. That
+ *  worked in dev but failed silently in some browser/frame
+ *  combinations (the animation never started, no error thrown).
+ *  The CSS-class approach is more reliable:
+ *    1. Define `@keyframes page-vacuum` in globals.css
+ *    2. Toggle `is-vacuuming` on #page-content via JS
+ *    3. To re-fire on every click, remove the class, force a
+ *       reflow with `void target.offsetWidth`, then re-add it.
+ *       The reflow commits the removal to the DOM before the
+ *       re-add, so the browser treats it as a fresh animation
+ *       rather than a no-op.
+ *
  *  Mechanics
  *  ─────────
- *  The effect is a single 0.5s scale animation applied to <body>
- *  via the Web Animations API. Each call to `body.animate()` starts
- *  a fresh animation, so consecutive clicks always re-fire the
- *  effect — no class-toggle / reflow trick required.
+ *  The keyframe animates `transform: scale(1) → scale(1.4) →
+ *  scale(1)` over 0.55s, with per-keyframe `animation-timing-
+ *  function` for the two distinct phases:
+ *    - 0% → 35% (vacuum): accelerating ease-in
+ *    - 35% → 100% (spit): decelerating ease-out
  *
- *  The scale anchors at the current viewport center (not the
- *  body's geometric center). Without this, a user clicking the nav
- *  at the top of the page would see the zoom pull from a point
- *  well below the viewport (the middle of the full page), which
- *  reads as "drift," not "vacuum." Anchoring at the viewport
- *  center makes the pull feel like it's grabbing the screen the
- *  user is looking at right now.
+ *  The transform-origin is set via a CSS custom property
+ *  (`--vacuum-origin-y`) to the current viewport center, so the
+ *  scale always feels like it's pulling the screen toward what
+ *  the user is currently looking at, not the geometric center
+ *  of the page.
  *
  *  Respect `prefers-reduced-motion: reduce` by skipping the
- *  animation entirely; the browser's smooth scroll still lands
- *  the user at the destination, just without the visual effect.
+ *  animation entirely (the global media query in globals.css
+ *  also collapses all animation durations to 0.01ms, so even if
+ *  the class is applied, the visual effect is a no-op).
  *
  *  Call once on the client. The Nav owns the call (it's the first
  *  client component to mount). Returns a cleanup that detaches
@@ -44,10 +58,6 @@
 export function initSectionFocusTracker(): () => void {
   if (typeof window === "undefined") return () => {};
 
-  // Captured once at mount. The OS pref rarely changes mid-session
-  // and re-evaluating per click would force a layout query each
-  // time; the cost of a stale `true` is a single missed animation
-  // on a preference flip, which is acceptable.
   const reduce = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -55,46 +65,32 @@ export function initSectionFocusTracker(): () => void {
   const triggerVacuum = () => {
     if (reduce) return;
 
-    // Target the page content wrapper, not <body>. Animating on
-    // the body creates a new containing block for the fixed
-    // background, and on some browsers can briefly desync click
-    // hit-testing — which manifested as "sometimes some buttons
-    // don't work" right after a vacuum fired. The wrapper isolates
-    // the transform so the body, the fixed background, and the
-    // clickable buttons all stay on their normal layers.
     const target = document.getElementById("page-content");
     if (!(target instanceof HTMLElement)) return;
 
-    // Anchor the scale at the current viewport center so the zoom
-    // feels like it's pulling the screen toward what the user is
-    // looking at, not the geometric center of the page.
+    // Anchor the scale at the current viewport center via a CSS
+    // custom property. We use a custom property (not inline
+    // `transformOrigin`) so the residual inline style doesn't
+    // linger on the element between clicks — the previous
+    // approach kept `body.style.transformOrigin` set even after
+    // the animation ended, which contributed to the intermittent
+    // "buttons don't work" issue by keeping the page-content
+    // wrapper in a transformed-state between clicks.
     const vh = window.innerHeight;
     const scrollY = window.scrollY;
-    target.style.transformOrigin = `50% ${scrollY + vh / 2}px`;
-
-    // Vacuum in (ease-in: slow start, accelerating pull toward the
-    // user) → Spit out (ease-out: fast start, decelerating settle
-    // at the destination). The 30% / 70% split gives the vacuum a
-    // tight pull and the spit a longer, gentler landing.
-    //
-    // The smooth scroll to the destination happens in parallel via
-    // the browser's `scroll-behavior: smooth`; the scale returns
-    // to rest as the destination comes into view, so the "spit"
-    // coincides with the user arriving.
-    target.animate(
-      [
-        { transform: "scale(1)", offset: 0, easing: "ease-in" },
-        { transform: "scale(1.3)", offset: 0.3, easing: "ease-out" },
-        { transform: "scale(1)", offset: 1 },
-      ],
-      {
-        duration: 500,
-        // Don't hold the final frame — the wrapper has no transform
-        // at rest, and `fill: "none"` is the default but spelled
-        // out for clarity.
-        fill: "none",
-      },
+    target.style.setProperty(
+      "--vacuum-origin-y",
+      `${scrollY + vh / 2}px`,
     );
+
+    // Re-fire the animation: remove → reflow → add. The forced
+    // reflow is the load-bearing step — without it, the browser
+    // would batch the removal+add in the same frame and see no
+    // change. With it, the removal commits before the add, so
+    // the animation restarts cleanly.
+    target.classList.remove("is-vacuuming");
+    void target.offsetWidth;
+    target.classList.add("is-vacuuming");
   };
 
   // Catch the click at the document level so it works for any
