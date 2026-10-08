@@ -130,7 +130,7 @@ export function Waitlist() {
               />
 
               <div className="relative">
-                <div className="font-mono text-xs uppercase tracking-wider text-bg/70">
+                <div className="font-mono text-xs uppercase tracking-wider text-bg">
                   Waitlist
                 </div>
                 <div className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-bg">
@@ -213,7 +213,7 @@ export function Waitlist() {
                 <div
                   className={
                     "mt-3 font-mono text-[11px] " +
-                    (status === "err" ? "text-bg" : "text-bg/70")
+                    (status === "err" ? "text-bg" : "text-bg/80")
                   }
                   role="status"
                 >
@@ -232,10 +232,11 @@ export function Waitlist() {
   );
 }
 
-// Input style for use INSIDE the bright blue card. Dark text on a slightly
-// transparent dark fill, with a translucent border.
+// Input style for use INSIDE the bright blue card. Solid dark fill, light
+// text for readability on the dark surface, with a subtle light border
+// that defines the box against the blue.
 const inputClassLight =
-  "block w-full h-11 rounded-md border border-bg/40 bg-bg/15 px-3 text-sm text-bg placeholder:text-bg/50 focus:border-bg focus:outline-none disabled:opacity-60";
+  "block w-full h-11 rounded-md border border-white/10 bg-bg/90 px-3 text-sm text-text placeholder:text-muted focus:border-white/40 focus:outline-none disabled:opacity-60";
 
 function Field({
   label,
@@ -254,8 +255,9 @@ function Field({
 }) {
   // Two label colorways: "dark" for forms on the page background (muted
   // gray label, blue "required" pill) and "light" for forms inside the
-  // bright blue card (faded dark label, full-dark "required" pill).
-  const labelClass = tone === "light" ? "text-bg/70" : "text-muted";
+  // bright blue card (full-dark label and "required" pill for max
+  // contrast against the blue).
+  const labelClass = tone === "light" ? "text-bg" : "text-muted";
   const requiredClass = tone === "light" ? "text-bg" : "text-action";
   return (
     <div>
