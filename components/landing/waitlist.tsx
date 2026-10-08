@@ -111,107 +111,119 @@ export function Waitlist() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
+            {/* Bright blue card — same look the old FinalCta had, now
+                doing real work (writing to Supabase). Faint grid overlay
+                sits behind the form for texture, like the FinalCta did. */}
             <form
               onSubmit={submit}
-              className="rounded-xl border border-border bg-surface shadow-card p-6"
+              className="relative overflow-hidden rounded-2xl border border-action/30 bg-action text-bg shadow-glow p-8 sm:p-10"
               aria-label="Join the bug.dr waitlist"
             >
-              <div className="font-mono text-xs uppercase tracking-wider text-muted">
-                Waitlist
-              </div>
-              <div className="mt-2 text-lg font-semibold tracking-tight">
-                Three fields. Sixty seconds.
-              </div>
-
-              <div className="mt-6 space-y-4">
-                <Field
-                  label="Email"
-                  required
-                  htmlFor="wl-email"
-                  input={
-                    <input
-                      id="wl-email"
-                      name="email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@somewhere.com"
-                      disabled={status === "sending" || status === "ok"}
-                      className={inputClass}
-                    />
-                  }
-                />
-                <Field
-                  label="Company"
-                  optional
-                  htmlFor="wl-company"
-                  input={
-                    <input
-                      id="wl-company"
-                      name="company"
-                      type="text"
-                      autoComplete="organization"
-                      value={company}
-                      onChange={(e) => setCompany(e.target.value)}
-                      placeholder="optional"
-                      disabled={status === "sending" || status === "ok"}
-                      className={inputClass}
-                    />
-                  }
-                />
-                <Field
-                  label="Why would you use bug.dr?"
-                  optional
-                  htmlFor="wl-reason"
-                  input={
-                    <textarea
-                      id="wl-reason"
-                      name="reason"
-                      rows={3}
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      placeholder="one line is fine"
-                      disabled={status === "sending" || status === "ok"}
-                      className={`${inputClass} resize-y min-h-[72px]`}
-                    />
-                  }
-                />
-              </div>
-
-              <Button
-                type="submit"
-                size="md"
-                className="mt-6 w-full"
-                disabled={status === "sending" || status === "ok"}
-              >
-                {status === "sending"
-                  ? "Sending…"
-                  : status === "ok"
-                    ? "You're on the list"
-                    : "Join the waitlist"}
-              </Button>
-
               <div
-                className={
-                  "mt-3 font-mono text-[11px] " +
-                  (status === "err" ? "text-diffImpossible" : "text-muted")
-                }
-                role="status"
-              >
-                {status === "ok"
-                  ? "thanks. we'll be in touch."
-                  : status === "err"
-                    ? "something went wrong. try again in a moment."
-                    : "no spam. one email when we open."}
-              </div>
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(21,22,24,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(21,22,24,0.3) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
 
-              {WAITLIST_COUNT !== null ? (
-                <div className="mt-1 font-mono text-[11px] text-muted">
-                  {WAITLIST_COUNT.toLocaleString()} engineers on the waitlist.
+              <div className="relative">
+                <div className="font-mono text-xs uppercase tracking-wider text-bg/70">
+                  Waitlist
                 </div>
-              ) : null}
+                <div className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-bg">
+                  Three fields. Sixty seconds.
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <Field
+                    tone="light"
+                    label="Email"
+                    required
+                    htmlFor="wl-email"
+                    input={
+                      <input
+                        id="wl-email"
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="you@somewhere.com"
+                        disabled={status === "sending" || status === "ok"}
+                        className={inputClassLight}
+                      />
+                    }
+                  />
+                  <Field
+                    tone="light"
+                    label="Company"
+                    optional
+                    htmlFor="wl-company"
+                    input={
+                      <input
+                        id="wl-company"
+                        name="company"
+                        type="text"
+                        autoComplete="organization"
+                        value={company}
+                        onChange={(e) => setCompany(e.target.value)}
+                        placeholder="optional"
+                        disabled={status === "sending" || status === "ok"}
+                        className={inputClassLight}
+                      />
+                    }
+                  />
+                  <Field
+                    tone="light"
+                    label="Why would you use bug.dr?"
+                    optional
+                    htmlFor="wl-reason"
+                    input={
+                      <textarea
+                        id="wl-reason"
+                        name="reason"
+                        rows={3}
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        placeholder="one line is fine"
+                        disabled={status === "sending" || status === "ok"}
+                        className={`${inputClassLight} resize-y min-h-[72px]`}
+                      />
+                    }
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  size="md"
+                  className="mt-6 w-full !bg-bg !text-action hover:!bg-surface"
+                  disabled={status === "sending" || status === "ok"}
+                >
+                  {status === "sending"
+                    ? "Sending…"
+                    : status === "ok"
+                      ? "You're on the list"
+                      : "Join the waitlist"}
+                </Button>
+
+                <div
+                  className={
+                    "mt-3 font-mono text-[11px] " +
+                    (status === "err" ? "text-bg" : "text-bg/70")
+                  }
+                  role="status"
+                >
+                  {status === "ok"
+                    ? "thanks. we'll be in touch."
+                    : status === "err"
+                      ? "something went wrong. try again in a moment."
+                      : "no spam. one email when we open."}
+                </div>
+              </div>
             </form>
           </motion.div>
         </div>
@@ -220,8 +232,10 @@ export function Waitlist() {
   );
 }
 
-const inputClass =
-  "block w-full h-11 rounded-md border border-border bg-bg px-3 text-sm text-text placeholder:text-muted/70 focus:border-action focus:outline-none disabled:opacity-60";
+// Input style for use INSIDE the bright blue card. Dark text on a slightly
+// transparent dark fill, with a translucent border.
+const inputClassLight =
+  "block w-full h-11 rounded-md border border-bg/40 bg-bg/15 px-3 text-sm text-bg placeholder:text-bg/50 focus:border-bg focus:outline-none disabled:opacity-60";
 
 function Field({
   label,
@@ -229,22 +243,29 @@ function Field({
   optional,
   htmlFor,
   input,
+  tone = "dark",
 }: {
   label: string;
   required?: boolean;
   optional?: boolean;
   htmlFor: string;
   input: React.ReactNode;
+  tone?: "dark" | "light";
 }) {
+  // Two label colorways: "dark" for forms on the page background (muted
+  // gray label, blue "required" pill) and "light" for forms inside the
+  // bright blue card (faded dark label, full-dark "required" pill).
+  const labelClass = tone === "light" ? "text-bg/70" : "text-muted";
+  const requiredClass = tone === "light" ? "text-bg" : "text-action";
   return (
     <div>
       <label
         htmlFor={htmlFor}
-        className="flex items-center justify-between font-mono text-[11px] uppercase tracking-wider text-muted"
+        className={`flex items-center justify-between font-mono text-[11px] uppercase tracking-wider ${labelClass}`}
       >
         <span>{label}</span>
         {required ? (
-          <span className="text-action">required</span>
+          <span className={requiredClass}>required</span>
         ) : optional ? (
           <span>optional</span>
         ) : null}

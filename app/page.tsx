@@ -8,7 +8,6 @@ import { RolesAndProfile } from "@/components/landing/roles-and-profile";
 import { ProblemLibrary } from "@/components/landing/problem-library";
 import { Waitlist } from "@/components/landing/waitlist";
 import { Faq } from "@/components/landing/faq";
-import { FinalCta } from "@/components/landing/final-cta";
 import { Footer } from "@/components/landing/footer";
 
 export default function Page() {
@@ -25,7 +24,6 @@ export default function Page() {
         <ProblemLibrary />
         <Waitlist />
         <Faq />
-        <FinalCta />
       </main>
       <Footer />
     </>
