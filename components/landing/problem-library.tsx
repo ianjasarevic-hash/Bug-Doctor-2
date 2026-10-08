@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/landing/container";
 import { Bug } from "@/components/landing/icons";
+import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 
 type Problem = {
   role: "Backend" | "Frontend" | "Full-stack" | "Database" | "AI / LLM" | "DevOps / SRE";
@@ -92,6 +93,7 @@ const cardFrom: ("left" | "right" | "bottom" | "top")[] = [
 ];
 
 export function ProblemLibrary() {
+  const reduce = useReducedMotion();
   return (
     <section
       id="library"
@@ -104,14 +106,18 @@ export function ProblemLibrary() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             Problem library
           </p>
           <h2
             id="library-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
             What the problems look like.
           </h2>
@@ -167,13 +173,21 @@ function ProblemCard({
       initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{
-        y: -6,
-        rotateX: 4,
-        boxShadow: "0 24px 48px -12px rgba(0,0,0,0.55)",
-        transition: { duration: 0.2, ease: "easeOut" },
-      }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const, delay }
+          : { delay, ...SPRING_GENTLE }
+      }
+      whileHover={
+        reduce
+          ? undefined
+          : {
+              y: -6,
+              rotateX: 4,
+              boxShadow: "0 24px 48px -12px rgba(0,0,0,0.55)",
+              transition: { ...SPRING },
+            }
+      }
     >
       {/* Log "image" */}
       <div className="font-mono text-[12px] leading-5 bg-bg/60 border-b border-border px-4 py-3">
@@ -192,7 +206,7 @@ function ProblemCard({
           </span>
         </div>
 
-        <h3 className="mt-3 text-lg font-semibold tracking-tight group-hover:text-action transition-colors">
+        <h3 className="mt-3 text-lg font-semibold text-headline group-hover:text-action transition-colors">
           {problem.title}
         </h3>
         <p className="mt-2 text-sm text-muted leading-relaxed">{problem.desc}</p>

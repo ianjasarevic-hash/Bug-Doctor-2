@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Container } from "@/components/landing/container";
 import { CodeBlock, type Line } from "@/components/landing/code-block";
+import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 
 // Full-container-width IDE moment. No copy column, no CTA — just the IDE.
 // Tabs: pool.ts (active), incident.md, preview. Terminal at bottom.
@@ -46,6 +47,7 @@ const terminalScript: { text: string; tone: string; delay: number }[] = [
 ];
 
 export function BrowserIDE() {
+  const reduce = useReducedMotion();
   return (
     <section
       id="ide"
@@ -55,11 +57,15 @@ export function BrowserIDE() {
       <Container>
         <motion.h2
           id="ide-heading"
-          className="text-2xl sm:text-3xl font-semibold tracking-tight max-w-2xl"
+          className="text-2xl sm:text-3xl font-semibold text-headline max-w-2xl"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           The same IDE you&apos;d run on prod — in your browser.
         </motion.h2>
@@ -69,7 +75,11 @@ export function BrowserIDE() {
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           {/* Window chrome */}
           <div className="flex items-center justify-between border-b border-border bg-bg/60 px-4 py-2 font-mono text-[11px]">
@@ -134,7 +144,11 @@ function FileTree() {
         initial={{ opacity: 0, x: reduce ? 0 : -20 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={
+          reduce
+            ? { duration: 0.2, ease: "easeOut" as const }
+            : { ...SPRING }
+        }
       >
         services
       </motion.div>
@@ -150,11 +164,11 @@ function FileTree() {
             initial={{ opacity: 0, x: reduce ? 0 : -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{
-              duration: 0.4,
-              delay: 0.05 + i * 0.05,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            transition={
+              reduce
+                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.05 + i * 0.05 }
+                : { delay: 0.05 + i * 0.05, ...SPRING }
+            }
           >
             {row.text}
           </motion.li>
@@ -165,7 +179,11 @@ function FileTree() {
         initial={{ opacity: 0, x: reduce ? 0 : -20 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.4, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={
+          reduce
+            ? { duration: 0.2, ease: "easeOut" as const, delay: 0.5 }
+            : { delay: 0.5, ...SPRING }
+        }
       >
         tests
       </motion.div>
@@ -174,7 +192,11 @@ function FileTree() {
         initial={{ opacity: 0, x: reduce ? 0 : -20 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.4, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        transition={
+          reduce
+            ? { duration: 0.2, ease: "easeOut" as const, delay: 0.55 }
+            : { delay: 0.55, ...SPRING }
+        }
       >
         <li className="text-muted pl-5">checkout.spec.ts</li>
       </motion.ul>

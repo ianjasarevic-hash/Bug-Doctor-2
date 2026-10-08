@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Check, Cross } from "@/components/landing/icons";
 import { Container } from "@/components/landing/container";
+import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 
 type Row = {
   label: string;
@@ -63,14 +64,18 @@ export function Comparison() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             The problem
           </p>
           <h2
             id="comparison-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
             The interview tests the wrong thing.
           </h2>
@@ -86,7 +91,11 @@ export function Comparison() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.15 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { delay: 0.1, ...SPRING_GENTLE }
+          }
         >
           {/* Header row */}
           <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 border-b border-border font-mono text-xs uppercase tracking-wider text-muted">
@@ -94,15 +103,18 @@ export function Comparison() {
             <div className="col-span-4">The interview</div>
             <div className="col-span-4 relative text-action">
               bug.dr
-              {/* subtle pulsing highlight under the bug.dr column header */}
+              {/* Subtle pulsing highlight under the bug.dr column header.
+                  Uses scaleX (transform) instead of width (layout) so the
+                  animation never triggers a layout/paint pass. origin-left
+                  makes it grow from the left edge like text being written. */}
               {!reduce && (
                 <motion.span
                   aria-hidden
-                  className="absolute -bottom-1 left-0 h-0.5 bg-action"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "100%" }}
+                  className="absolute -bottom-1 left-0 h-0.5 bg-action origin-left"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
                   viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.5, ...SPRING_GENTLE }}
                 />
               )}
             </div>
@@ -140,7 +152,11 @@ function ComparisonRow({
       initial={{ opacity: 0, x: reduce ? 0 : x }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const, delay }
+          : { delay, ...SPRING_GENTLE }
+      }
     >
       <div className="sm:col-span-4 font-mono text-xs uppercase tracking-wider text-muted">
         {row.label}
@@ -152,7 +168,11 @@ function ComparisonRow({
           initial={{ scale: 0, rotate: -90 }}
           whileInView={{ scale: 1, rotate: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.4, delay: delay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: delay + 0.15 }
+              : { delay: delay + 0.15, ...SPRING_SNAPPY }
+          }
         >
           <Cross size={11} />
         </motion.span>
@@ -165,7 +185,11 @@ function ComparisonRow({
           initial={{ scale: 0, rotate: 90 }}
           whileInView={{ scale: 1, rotate: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.4, delay: delay + 0.25, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: delay + 0.25 }
+              : { delay: delay + 0.25, ...SPRING_SNAPPY }
+          }
         >
           <Check size={11} />
         </motion.span>

@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
 import { joinWaitlist } from "@/lib/supabase";
+import { SPRING, SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 
 // Motion-wrapped Button so we can attach the pulse / hover-pop animations
 // without forking the Button component itself.
@@ -56,14 +57,18 @@ export function Waitlist() {
             initial={{ opacity: 0, x: reduce ? 0 : -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            transition={
+              reduce
+                ? { duration: 0.2, ease: "easeOut" as const }
+                : { ...SPRING_GENTLE }
+            }
           >
             <p className="font-mono text-xs uppercase tracking-widest text-action">
               Launching · October 21
             </p>
             <h2
               id="waitlist-heading"
-              className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight leading-tight"
+              className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
             >
               Be there day one.
             </h2>
@@ -83,11 +88,11 @@ export function Waitlist() {
                     initial={{ opacity: 0, x: reduce ? 0 : xDir }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.2 + i * 0.08,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
+                    transition={
+                      reduce
+                        ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.08 }
+                        : { delay: 0.2 + i * 0.08, ...SPRING }
+                    }
                   >
                     <motion.span
                       aria-hidden
@@ -95,11 +100,11 @@ export function Waitlist() {
                       initial={{ scale: 0 }}
                       whileInView={{ scale: 1 }}
                       viewport={{ once: true, amount: 0.3 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: 0.3 + i * 0.08,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
+                      transition={
+                        reduce
+                          ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 + i * 0.08 }
+                          : { delay: 0.3 + i * 0.08, ...SPRING_SNAPPY }
+                      }
                     />
                     <span>{x}</span>
                   </motion.li>

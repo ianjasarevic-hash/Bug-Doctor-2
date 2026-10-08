@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { CodeBlock, type Line } from "@/components/landing/code-block";
 import { Check } from "@/components/landing/icons";
+import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 
 const incidentStack: Line[] = [
   { tokens: [{ text: "Error: pool.query timeout after 30000ms", tone: "text" }] },
@@ -47,6 +48,7 @@ const terminal: { text: string; tone?: "prompt" | "ok" | "muted" | "accent" | "t
 ];
 
 export function HowItWorks() {
+  const reduce = useReducedMotion();
   const items = [
     {
       n: "01",
@@ -92,14 +94,18 @@ export function HowItWorks() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             How it works
           </p>
           <h2
             id="how-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
             Diagnose. Treat. Discharge.
           </h2>
@@ -152,14 +158,18 @@ function HowCopy({
       initial={{ opacity: 0, x: reduce ? 0 : x, y: 20 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const }
+          : { ...SPRING_GENTLE }
+      }
     >
       <div className="font-mono text-sm text-muted">
         <span className="text-action">{n}</span>
         <span aria-hidden> · </span>
         <span className="uppercase tracking-wider">{label}</span>
       </div>
-      <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">
+      <h3 className="mt-2 text-2xl sm:text-3xl font-semibold text-headline">
         {title}
       </h3>
       <p className="mt-3 text-muted text-lg leading-relaxed">{body}</p>
@@ -189,7 +199,11 @@ function HowVisual({
       initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const, delay: 0.1 }
+          : { delay: 0.1, ...SPRING_GENTLE }
+      }
     >
       {children}
     </motion.div>
@@ -203,7 +217,9 @@ function IncidentMock() {
     initial: { opacity: 0, y: reduce ? 0 : 16 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, amount: 0.2 },
-    transition: { duration: 0.4, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
+    transition: reduce
+      ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.1 }
+      : { delay: 0.2 + i * 0.1, ...SPRING },
   });
 
   return (
@@ -256,11 +272,11 @@ function IdeMock() {
             initial={{ opacity: 0, x: reduce ? 0 : -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{
-              duration: 0.4,
-              delay: 0.2 + i * 0.08,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            transition={
+              reduce
+                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.08 }
+                : { delay: 0.2 + i * 0.08, ...SPRING_GENTLE }
+            }
           >
             <span className="shrink-0 select-none w-6 text-diffImpossible/80 pr-6">
               −
@@ -279,11 +295,11 @@ function IdeMock() {
             initial={{ opacity: 0, x: reduce ? 0 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{
-              duration: 0.4,
-              delay: 0.45 + i * 0.08,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            transition={
+              reduce
+                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.45 + i * 0.08 }
+                : { delay: 0.45 + i * 0.08, ...SPRING_GENTLE }
+            }
           >
             <span className="shrink-0 select-none w-6 text-diffEasy pr-6">
               +
@@ -336,11 +352,9 @@ function DischargeMock() {
     initial: { opacity: 0, x: reduce ? 0 : 30 },
     whileInView: { opacity: 1, x: 0 },
     viewport: { once: true, amount: 0.2 },
-    transition: {
-      duration: 0.45,
-      delay: 0.15 + i * 0.08,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
+    transition: reduce
+      ? { duration: 0.2, ease: "easeOut" as const, delay: 0.15 + i * 0.08 }
+      : { delay: 0.15 + i * 0.08, ...SPRING },
   });
 
   return (

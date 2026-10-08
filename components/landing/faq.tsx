@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { ChevronDown } from "@/components/landing/icons";
+import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 
 const faqs = [
   {
@@ -52,14 +53,18 @@ export function Faq() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             FAQ
           </p>
           <h2
             id="faq-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
             Questions we get asked.
           </h2>
@@ -75,11 +80,11 @@ export function Faq() {
                 initial={{ opacity: 0, x: reduce ? 0 : x }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{
-                  duration: 0.5,
-                  delay: i * 0.06,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
+                transition={
+                  reduce
+                    ? { duration: 0.2, ease: "easeOut" as const, delay: i * 0.06 }
+                    : { delay: i * 0.06, ...SPRING_GENTLE }
+                }
               >
                 <button
                   type="button"
@@ -110,7 +115,11 @@ export function Faq() {
                       className="px-6 pb-6 text-muted leading-relaxed"
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: open === i ? 1 : 0, y: open === i ? 0 : 6 }}
-                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      transition={
+                        reduce
+                          ? { duration: 0.2, ease: "easeOut" as const }
+                          : { ...SPRING }
+                      }
                     >
                       {item.a}
                     </motion.p>

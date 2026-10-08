@@ -6,12 +6,21 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  // Restrict to the weights the site actually uses (400 body, 500
+  // mid-emphasis, 600 headings). Without this, next/font/google pulls
+  // all 9 weights — ~6 of them are never rendered, wasting ~150–200KB
+  // of woff2 on first load. Optical sizing on the variable font kicks
+  // in via `font-optical-sizing: auto` on body.
+  weight: ["400", "500", "600"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
   display: "swap",
+  // Body weight for the code font; 500 for emphasized tokens (e.g. the
+  // "score" line in the discharge terminal).
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {

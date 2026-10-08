@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
 import { LinkButton } from "@/components/ui/button";
 import { CodeBlock, type Line } from "@/components/landing/code-block";
 import { ArrowRight, Check, Cross, Play } from "@/components/landing/icons";
+import { SPRING_GENTLE } from "@/lib/motion";
 
 // ── Hero IDE visual ──────────────────────────────────────────────────────
 //
@@ -44,6 +45,7 @@ const diffLines: Line[] = [
 ];
 
 export function Hero() {
+  const reduce = useReducedMotion();
   return (
     <section className="relative pt-8 pb-12 lg:pt-10 lg:pb-10 lg:min-h-[calc(100svh-2.5rem)] lg:flex lg:items-center">
       {/* Radial glow (the page-wide grid is in the layout root) */}
@@ -65,18 +67,26 @@ export function Hero() {
           {/* Copy — first-load choreography: every element from a different side */}
           <div className="max-w-xl">
             <motion.h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]"
-              initial={{ opacity: 0, x: -50 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-display"
+              initial={reduce ? false : { opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={
+                reduce
+                  ? { duration: 0.2, ease: "easeOut" as const }
+                  : { ...SPRING_GENTLE }
+              }
             >
               Interviews test puzzles.{" "}
               <motion.span
                 className="text-muted inline-block text-glow-pulse"
                 data-glow="bug.dr tests the work that matters."
-                initial={{ opacity: 0, x: 50 }}
+                initial={reduce ? false : { opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                transition={
+                  reduce
+                    ? { duration: 0.2, ease: "easeOut" as const, delay: 0.15 }
+                    : { delay: 0.15, ...SPRING_GENTLE }
+                }
               >
                 bug.dr tests the work that matters.
               </motion.span>
@@ -84,9 +94,13 @@ export function Hero() {
 
             <motion.p
               className="mt-6 text-lg text-muted leading-relaxed"
-              initial={{ opacity: 0, y: 40 }}
+              initial={reduce ? false : { opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              transition={
+                reduce
+                  ? { duration: 0.2, ease: "easeOut" as const, delay: 0.35 }
+                  : { delay: 0.35, ...SPRING_GENTLE }
+              }
             >
               AI can pass the interview in 30 seconds. It can&apos;t read a
               stack trace, find the leak, and ship the fix at 3am. bug.dr drops
@@ -108,9 +122,13 @@ export function Hero() {
 
             <motion.div
               className="mt-8 flex flex-col sm:flex-row gap-3"
-              initial={{ opacity: 0, y: 40 }}
+              initial={reduce ? false : { opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={
+                reduce
+                  ? { duration: 0.2, ease: "easeOut" as const, delay: 0.5 }
+                  : { delay: 0.5, ...SPRING_GENTLE }
+              }
             >
               <LinkButton href="#waitlist" size="lg">
                 Join the waitlist
@@ -123,9 +141,13 @@ export function Hero() {
 
             <motion.div
               className="mt-6 flex items-center gap-6 text-xs text-muted font-mono flex-wrap"
-              initial={{ opacity: 0, x: -40 }}
+              initial={reduce ? false : { opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+              transition={
+                reduce
+                  ? { duration: 0.2, ease: "easeOut" as const, delay: 0.65 }
+                  : { delay: 0.65, ...SPRING_GENTLE }
+              }
             >
               <span className="text-text">launching oct 21</span>
               <span aria-hidden className="h-3 w-px bg-border" />
@@ -139,9 +161,13 @@ export function Hero() {
               responds to mouse on hover (existing 3D tilt). */}
           <motion.div
             className="w-full min-w-0"
-            initial={{ opacity: 0, x: 80, scale: 0.96 }}
+            initial={reduce ? false : { opacity: 0, x: 80, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={
+              reduce
+                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 }
+                : { delay: 0.3, ...SPRING_GENTLE }
+            }
           >
             <HeroIDE />
           </motion.div>
@@ -340,6 +366,17 @@ function ChecksPanel() {
 }
 
 function ChecksCounter() {
+  // When the OS asks for less motion, skip the "2/4 passing → 4/4 passing"
+  // crossfade and render only the final state. The flip still happens
+  // instantly because the underlying logic is unchanged.
+  const reduce = useReducedMotion();
+  if (reduce) {
+    return (
+      <span className="relative inline-block font-mono text-[11px] text-action min-w-[90px] text-right">
+        4 / 4 passing
+      </span>
+    );
+  }
   return (
     <span className="relative inline-block font-mono text-[11px] text-action min-w-[90px] text-right">
       <motion.span

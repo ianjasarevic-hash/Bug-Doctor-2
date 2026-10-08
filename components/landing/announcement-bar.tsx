@@ -1,19 +1,28 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { Container } from "@/components/landing/container";
 import { Countdown } from "@/components/landing/countdown";
+import { SPRING_GENTLE } from "@/lib/motion";
 
 export function AnnouncementBar() {
+  // The announcement bar is the second most-pinned surface on the
+  // site (under the nav). When the OS asks for less motion, skip the
+  // slide-in and render the bar at its resting position.
+  const reduce = useReducedMotion();
   return (
     <motion.div
       role="region"
       aria-label="Launch announcement"
-      className="relative z-40 bg-surface border-b border-border"
-      initial={{ y: -40, opacity: 0 }}
+      className="relative z-40 bg-surface/60 backdrop-blur-md border-b border-border frosted"
+      initial={reduce ? false : { y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const }
+          : { delay: 0.05, ...SPRING_GENTLE }
+      }
     >
       <Container>
         <Link

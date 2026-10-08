@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/landing/container";
 import { Flame } from "@/components/landing/icons";
+import { SPRING, SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 
 const roles = [
   {
@@ -107,6 +108,7 @@ const chipFrom: ("left" | "right" | "top" | "bottom")[] = [
 ];
 
 export function RolesAndProfile() {
+  const reduce = useReducedMotion();
   return (
     <section
       id="profile"
@@ -119,11 +121,15 @@ export function RolesAndProfile() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
         >
           <h2
             id="profile-heading"
-            className="text-2xl sm:text-3xl font-semibold tracking-tight"
+            className="text-2xl sm:text-3xl font-semibold text-headline"
           >
             Pick a role. Show your work.
           </h2>
@@ -178,7 +184,11 @@ function RoleChip({
       initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const, delay }
+          : { delay, ...SPRING_GENTLE }
+      }
     >
       <div className="flex items-center gap-2">
         <span className="font-mono text-[11px] text-action border border-action/40 bg-action/10 rounded px-1.5 py-0.5">
@@ -255,6 +265,7 @@ function CountUp({
 }
 
 function ProfileCard() {
+  const reduce = useReducedMotion();
   const grid = buildHeatmap();
   return (
     <motion.div
@@ -262,7 +273,11 @@ function ProfileCard() {
       initial={{ opacity: 0, x: 60, y: 20 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={
+        reduce
+          ? { duration: 0.2, ease: "easeOut" as const }
+          : { ...SPRING_GENTLE }
+      }
     >
       <div className="flex items-center gap-3">
         <motion.div
@@ -270,7 +285,11 @@ function ProfileCard() {
           initial={{ scale: 0.6, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: 0.15 }
+              : { delay: 0.15, ...SPRING_SNAPPY }
+          }
         >
           B
         </motion.div>
@@ -286,7 +305,11 @@ function ProfileCard() {
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 }
+              : { delay: 0.3, ...SPRING_SNAPPY }
+          }
         >
           <motion.span
             animate={{ scale: [1, 1.15, 1], rotate: [0, -4, 4, 0] }}
@@ -309,7 +332,11 @@ function ProfileCard() {
           initial={{ opacity: 0, y: 8, rotateX: 0 }}
           whileInView={{ opacity: 1, y: 0, rotateX: 28 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const }
+              : { ...SPRING_GENTLE }
+          }
           style={{ perspective: 500, transformStyle: "preserve-3d" }}
         >
           <div className="grid grid-rows-7 grid-flow-col gap-1">
@@ -335,7 +362,11 @@ function ProfileCard() {
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: 0.1 }
+              : { delay: 0.1, ...SPRING }
+          }
         >
           <CountUp to={184} className="text-text" /> solved
         </motion.span>
@@ -343,7 +374,11 @@ function ProfileCard() {
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 }
+              : { delay: 0.2, ...SPRING }
+          }
         >
           <CountUp to={87} className="text-text" /> avg score
         </motion.span>
@@ -351,7 +386,11 @@ function ProfileCard() {
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          transition={
+            reduce
+              ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 }
+              : { delay: 0.3, ...SPRING }
+          }
         >
           best role <span className="text-text">Backend</span>
         </motion.span>

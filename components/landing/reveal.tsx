@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
+import { SPRING } from "@/lib/motion";
 
 // ── Reveal ───────────────────────────────────────────────────────────────
 //
@@ -25,9 +26,6 @@ const offsets: Record<Direction, { x: number; y: number }> = {
   right: { x: 40, y: 0 },
   none: { x: 0, y: 0 },
 };
-
-// ease-out-quint — same easing the page uses elsewhere; punchy without overshoot.
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Reveal({
   children,
@@ -54,7 +52,13 @@ export function Reveal({
   // prefers-reduced-motion: just fade. No translation.
   const initial = reduce ? { opacity: 0 } : { opacity: 0, x: off.x, y: off.y };
   const show = reduce ? { opacity: 1 } : { opacity: 1, x: 0, y: 0 };
-  const transition = { delay, duration: reduce ? duration * 0.5 : duration, ease: EASE };
+  // SPRING is the house critically-damped default. The `duration` prop
+  // (default 0.65) is a "response" hint — if the caller passed the
+  // default we let the spring's own 0.4 stand, otherwise we override
+  // it. Reduced-motion branch: short cross-fade, no spring physics.
+  const transition = reduce
+    ? { delay, duration: 0.2, ease: "easeOut" as const }
+    : { delay, ...SPRING, ...(duration !== 0.65 ? { duration } : {}) };
 
   if (trigger === "load") {
     return (
@@ -142,12 +146,16 @@ export function RevealItem({
   const variants: Variants = {
     hidden: reduce ? { opacity: 0 } : { opacity: 0, x: off.x, y: off.y },
     show: reduce
-      ? { opacity: 1, transition: { duration: duration * 0.5, ease: EASE } }
+      ? {
+          opacity: 1,
+          transition: { duration: 0.2, ease: "easeOut" as const },
+        }
       : {
           opacity: 1,
           x: 0,
           y: 0,
-          transition: { duration, ease: EASE },
+          transition:
+            duration === 0.65 ? SPRING : { ...SPRING, duration },
         },
   };
   return (

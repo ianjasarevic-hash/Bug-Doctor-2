@@ -23,6 +23,8 @@ body {
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
 }
 
 /* Code: disable programming ligatures ("=>" → "⇒", "!=" → "≠", etc.) so
@@ -60,6 +62,48 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ── Typography utilities (Apple HIG: size-specific tracking) ─────────── */
+
+/* Display — for the largest headings (text-5xl / text-6xl, e.g. the
+   hero h1). Tighter tracking as the type grows because letters read
+   too far apart at large sizes, and a tight 1.05 leading so the lines
+   stack close. */
+.text-display {
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+/* Headline — for section-level headings (text-3xl / text-4xl / h2s).
+   A moderate negative tracking that tightens without cramping, and
+   1.15 leading so multi-line headings stay readable. */
+.text-headline {
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+/* ── Frosted material (Apple HIG: backdrop-filter translucency) ────────── */
+
+/* A named class so the `prefers-reduced-transparency` override can
+   target it specifically without affecting the waitlist card or any
+   other bright surface the user has finalized. Applied to the
+   sticky nav and the announcement bar; nothing else. */
+.frosted {
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  /* The user has asked for less transparency. Frosted surfaces become
+     fully opaque so the page reads without the visual layering. The
+     waitlist card is NOT in `.frosted` so it keeps its translucent
+     material language regardless. */
+  .frosted {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--bg) !important;
   }
 }
 
