@@ -55,12 +55,22 @@ export function initSectionFocusTracker(): () => void {
   const triggerVacuum = () => {
     if (reduce) return;
 
+    // Target the page content wrapper, not <body>. Animating on
+    // the body creates a new containing block for the fixed
+    // background, and on some browsers can briefly desync click
+    // hit-testing — which manifested as "sometimes some buttons
+    // don't work" right after a vacuum fired. The wrapper isolates
+    // the transform so the body, the fixed background, and the
+    // clickable buttons all stay on their normal layers.
+    const target = document.getElementById("page-content");
+    if (!(target instanceof HTMLElement)) return;
+
     // Anchor the scale at the current viewport center so the zoom
     // feels like it's pulling the screen toward what the user is
     // looking at, not the geometric center of the page.
     const vh = window.innerHeight;
     const scrollY = window.scrollY;
-    document.body.style.transformOrigin = `50% ${scrollY + vh / 2}px`;
+    target.style.transformOrigin = `50% ${scrollY + vh / 2}px`;
 
     // Vacuum in (ease-in: slow start, accelerating pull toward the
     // user) → Spit out (ease-out: fast start, decelerating settle
@@ -71,7 +81,7 @@ export function initSectionFocusTracker(): () => void {
     // the browser's `scroll-behavior: smooth`; the scale returns
     // to rest as the destination comes into view, so the "spit"
     // coincides with the user arriving.
-    document.body.animate(
+    target.animate(
       [
         { transform: "scale(1)", offset: 0, easing: "ease-in" },
         { transform: "scale(1.3)", offset: 0.3, easing: "ease-out" },
@@ -79,7 +89,7 @@ export function initSectionFocusTracker(): () => void {
       ],
       {
         duration: 500,
-        // Don't hold the final frame — the body has no transform
+        // Don't hold the final frame — the wrapper has no transform
         // at rest, and `fill: "none"` is the default but spelled
         // out for clarity.
         fill: "none",

@@ -62,7 +62,16 @@ export default function RootLayout({
           aria-hidden
           className="pointer-events-none fixed inset-0 z-0 bg-grid bg-grid-fade opacity-60"
         />
-        <div className="relative z-10">{children}</div>
+        {/* The post-nav-click "vacuum in, spit out" transition
+            (see lib/section-focus.ts) scales this wrapper, not the
+            body. The id is the anchor the Web Animations API uses,
+            and keeping the transform on this element — instead of
+            on <body> — leaves the body's containing block and
+            stacking context untouched, so click hit-testing on the
+            nav and other in-page buttons stays correct mid-animation. */}
+        <div id="page-content" className="relative z-10">
+          {children}
+        </div>
       </body>
     </html>
   );
