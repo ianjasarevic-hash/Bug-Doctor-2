@@ -46,11 +46,7 @@ const diffLines: Line[] = [
 export function Hero() {
   return (
     <section className="relative pt-8 pb-12 lg:pt-10 lg:pb-10 lg:min-h-[calc(100svh-2.5rem)] lg:flex lg:items-center">
-      {/* Background grid + radial glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-grid bg-grid-fade opacity-60"
-      />
+      {/* Radial glow (the page-wide grid is in the layout root) */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[480px] w-[820px] max-w-[100vw] rounded-full blur-3xl opacity-30"

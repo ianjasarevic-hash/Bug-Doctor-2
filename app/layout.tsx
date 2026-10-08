@@ -44,8 +44,16 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="bg-bg text-text font-sans antialiased min-h-screen">
-        {children}
+      <body className="bg-bg text-text font-sans antialiased min-h-screen relative">
+        {/* Page-wide grid background — same "cubes" the hero uses, but
+            fixed to the viewport so it stays present as the user scrolls
+            and frames every section the same way. The radial mask in
+            .bg-grid-fade keeps the corners clean. */}
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-0 bg-grid bg-grid-fade opacity-60"
+        />
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );
