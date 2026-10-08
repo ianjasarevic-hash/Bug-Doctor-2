@@ -185,18 +185,18 @@ html {
   pointer-events: none;
   color: transparent;
   text-shadow:
-    0 0 16px rgba(139, 172, 255, 0.60),
-    0 0 40px rgba(96, 165, 250, 0.30);
+    0 0 16px rgba(59, 130, 246, 0.75),
+    0 0 40px rgba(37, 99, 235, 0.45);
   animation: text-glow-breathe 3.2s ease-in-out infinite;
 }
 @keyframes text-glow-breathe {
-  0%, 100% { opacity: 0.45; }
+  0%, 100% { opacity: 0.50; }
   50%      { opacity: 1.00; }
 }
 
-/* Softer variant — same pseudo-element technique but a near-white halo
-   with much lower opacity. Use on supporting text where a blue glow would
-   compete with the primary phrase. */
+/* Softer variant — same pseudo-element technique but lower-opacity dark
+   blue. Use on supporting text where a full glow would compete with the
+   primary phrase. */
 .text-glow-soft {
   position: relative;
 }
@@ -207,7 +207,7 @@ html {
   pointer-events: none;
   color: transparent;
   text-shadow:
-    0 0 14px rgba(242, 243, 245, 0.22),
-    0 0 32px rgba(139, 172, 255, 0.10);
+    0 0 14px rgba(59, 130, 246, 0.45),
+    0 0 32px rgba(37, 99, 235, 0.25);
   animation: text-glow-breathe 3.2s ease-in-out infinite;
 }
