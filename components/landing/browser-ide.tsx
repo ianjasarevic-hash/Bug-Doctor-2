@@ -50,7 +50,7 @@ export function BrowserIDE() {
     <section
       id="ide"
       aria-labelledby="ide-heading"
-      className="relative py-24 sm:py-32"
+      className="relative py-24 sm:py-32 cv-auto"
     >
       <Container>
         <motion.h2

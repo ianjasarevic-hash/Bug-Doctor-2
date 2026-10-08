@@ -10,7 +10,7 @@ export function AnnouncementBar() {
     <motion.div
       role="region"
       aria-label="Launch announcement"
-      className="relative z-40 bg-surface/80 backdrop-blur-sm border-b border-border"
+      className="relative z-40 bg-surface border-b border-border"
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}

@@ -44,7 +44,7 @@ export function Faq() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="relative py-24 sm:py-32 border-t border-border"
+      className="relative py-24 sm:py-32 border-t border-border cv-auto"
     >
       <Container>
         <motion.div

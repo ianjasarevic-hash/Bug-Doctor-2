@@ -109,3 +109,68 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ── Performance utilities ──────────────────────────────────────────────── */
+
+/* content-visibility: auto skips rendering work for off-screen sections.
+   contain-intrinsic-size tells the browser how tall the section is so the
+   scrollbar doesn't jump when it gets promoted into view. The 0 0 1200px
+   here is a reasonable upper bound for landing-page sections. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1200px;
+}
+
+/* Promote the hero IDE wrapper to its own GPU layer so the 3D tilt and the
+   scroll don't compete for the same paint/composite budget. */
+.gpu {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Pulsing button glow — opacity on a pseudo, NOT box-shadow on the element.
+   Animating box-shadow repaints every frame; animating opacity composites
+   only. The button itself keeps a static shadow-glow for the base look. */
+.btn-glow-pulse {
+  position: relative;
+  isolation: isolate;
+}
+.btn-glow-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 24px -2px rgba(139, 172, 255, 0.45),
+    0 0 56px -8px rgba(139, 172, 255, 0.22);
+  opacity: 0.55;
+  animation: btn-glow-breathe 2.6s ease-in-out infinite;
+}
+@keyframes btn-glow-breathe {
+  0%, 100% { opacity: 0.40; }
+  50%      { opacity: 0.95; }
+}
+
+/* Pulsing text glow — same trick, opacity on a pseudo that duplicates the
+   parent's text. The data attribute carries the text so we don't have to
+   wrap every glowing phrase in JSX. */
+.text-glow-pulse {
+  position: relative;
+}
+.text-glow-pulse::after {
+  content: attr(data-glow);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: transparent;
+  text-shadow:
+    0 0 20px rgba(139, 172, 255, 0.40),
+    0 0 48px rgba(139, 172, 255, 0.18);
+  animation: text-glow-breathe 3.2s ease-in-out infinite;
+}
+@keyframes text-glow-breathe {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.90; }
+}

@@ -26,7 +26,7 @@ export function Nav() {
       className={[
         "sticky top-0 z-50 transition-colors duration-200",
         scrolled
-          ? "bg-bg/75 backdrop-blur-md border-b border-border/80"
+          ? "bg-bg/90 border-b border-border/80"
           : "bg-transparent border-b border-transparent",
       ].join(" ")}
       initial={{ y: -50, opacity: 0 }}

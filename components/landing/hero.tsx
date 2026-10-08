@@ -76,7 +76,8 @@ export function Hero() {
             >
               Interviews test puzzles.{" "}
               <motion.span
-                className="text-muted inline-block animate-text-glow-pulse"
+                className="text-muted inline-block text-glow-pulse"
+                data-glow="bug.dr tests the work that matters."
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
@@ -94,11 +95,17 @@ export function Hero() {
               AI can pass the interview in 30 seconds. It can&apos;t read a
               stack trace, find the leak, and ship the fix at 3am. bug.dr drops
               you into a{" "}
-              <span className="text-text font-medium animate-text-glow-pulse">
+              <span
+                className="text-text font-medium text-glow-pulse"
+                data-glow="real, broken production codebase"
+              >
                 real, broken production codebase
               </span>
               . You fix it.{" "}
-              <span className="text-text font-medium animate-text-glow-pulse">
+              <span
+                className="text-text font-medium text-glow-pulse"
+                data-glow="Automated production checks prove you did."
+              >
                 Automated production checks prove you did.
               </span>
             </motion.p>

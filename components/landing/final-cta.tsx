@@ -37,7 +37,7 @@ export function FinalCta() {
   return (
     <section
       aria-labelledby="final-cta-heading"
-      className="relative py-20 sm:py-28"
+      className="relative py-20 sm:py-28 cv-auto"
     >
       <Container>
         <motion.div
