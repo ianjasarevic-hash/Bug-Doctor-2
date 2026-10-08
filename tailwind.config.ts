@@ -46,6 +46,8 @@ export default {
       boxShadow: {
         card: "0 0 0 1px #383C43, 0 12px 32px -16px rgba(0,0,0,0.6)",
         glow: "0 0 0 1px rgba(139,172,255,0.4), 0 0 24px -4px rgba(139,172,255,0.25)",
+        "glow-strong":
+          "0 0 0 1px rgba(139,172,255,0.55), 0 0 32px -2px rgba(139,172,255,0.45), 0 0 64px -8px rgba(139,172,255,0.25)",
       },
       keyframes: {
         "fade-in-up": {
@@ -56,10 +58,32 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0" },
         },
+        "glow-pulse": {
+          "0%, 100%": {
+            boxShadow:
+              "0 0 0 1px rgba(139,172,255,0.45), 0 0 18px -2px rgba(139,172,255,0.30), 0 0 36px -8px rgba(139,172,255,0.15)",
+          },
+          "50%": {
+            boxShadow:
+              "0 0 0 1px rgba(139,172,255,0.65), 0 0 28px 0px rgba(139,172,255,0.55), 0 0 60px -4px rgba(139,172,255,0.30)",
+          },
+        },
+        "text-glow-pulse": {
+          "0%, 100%": {
+            textShadow:
+              "0 0 18px rgba(139,172,255,0.30), 0 0 40px rgba(139,172,255,0.12)",
+          },
+          "50%": {
+            textShadow:
+              "0 0 24px rgba(139,172,255,0.55), 0 0 56px rgba(139,172,255,0.25)",
+          },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.5s ease-out forwards",
         blink: "blink 1s step-end infinite",
+        "glow-pulse": "glow-pulse 2.6s ease-in-out infinite",
+        "text-glow-pulse": "text-glow-pulse 3.2s ease-in-out infinite",
       },
     },
   },

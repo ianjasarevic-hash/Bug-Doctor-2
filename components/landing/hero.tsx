@@ -2,7 +2,6 @@
 
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { LinkButton } from "@/components/ui/button";
-import { Container } from "@/components/landing/container";
 import { CodeBlock, type Line } from "@/components/landing/code-block";
 import { ArrowRight, Check, Cross, Play } from "@/components/landing/icons";
 
@@ -61,10 +60,14 @@ export function Hero() {
         }}
       />
 
-      <Container className="relative w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      {/* Full-bleed layout: copy on the far left, IDE on the far right.
+          The Container (1200px max) is intentionally NOT used here — this
+          section spans the whole viewport on lg+. Other sections keep the
+          centered Container. */}
+      <div className="relative w-full px-6 md:px-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] gap-10 lg:gap-16 items-center">
           {/* Copy — first-load choreography: every element from a different side */}
-          <div className="lg:col-span-6 max-w-2xl">
+          <div className="max-w-xl">
             <motion.h1
               className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]"
               initial={{ opacity: 0, x: -50 }}
@@ -73,7 +76,7 @@ export function Hero() {
             >
               Interviews test puzzles.{" "}
               <motion.span
-                className="text-muted inline-block"
+                className="text-muted inline-block animate-text-glow-pulse"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
@@ -83,15 +86,21 @@ export function Hero() {
             </motion.h1>
 
             <motion.p
-              className="mt-6 text-lg text-muted leading-relaxed max-w-xl"
+              className="mt-6 text-lg text-muted leading-relaxed"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               AI can pass the interview in 30 seconds. It can&apos;t read a
               stack trace, find the leak, and ship the fix at 3am. bug.dr drops
-              you into a real, broken production codebase. You fix it.
-              Automated production checks prove you did.
+              you into a{" "}
+              <span className="text-text font-medium animate-text-glow-pulse">
+                real, broken production codebase
+              </span>
+              . You fix it.{" "}
+              <span className="text-text font-medium animate-text-glow-pulse">
+                Automated production checks prove you did.
+              </span>
             </motion.p>
 
             <motion.div
@@ -110,7 +119,7 @@ export function Hero() {
             </motion.div>
 
             <motion.div
-              className="mt-6 flex items-center gap-6 text-xs text-muted font-mono"
+              className="mt-6 flex items-center gap-6 text-xs text-muted font-mono flex-wrap"
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
@@ -126,7 +135,7 @@ export function Hero() {
           {/* IDE visual — slides in from the right on first load, then
               responds to mouse on hover (existing 3D tilt). */}
           <motion.div
-            className="lg:col-span-6"
+            className="w-full min-w-0"
             initial={{ opacity: 0, x: 80, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -134,7 +143,7 @@ export function Hero() {
             <HeroIDE />
           </motion.div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 }

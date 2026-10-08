@@ -70,7 +70,7 @@ export function Comparison() {
           </p>
           <h2
             id="comparison-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight animate-text-glow-pulse"
           >
             The interview tests the wrong thing.
           </h2>

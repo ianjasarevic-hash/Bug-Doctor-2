@@ -99,7 +99,7 @@ export function HowItWorks() {
           </p>
           <h2
             id="how-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
+            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight animate-text-glow-pulse"
           >
             Diagnose. Treat. Discharge.
           </h2>

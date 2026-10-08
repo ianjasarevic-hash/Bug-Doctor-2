@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Container } from "@/components/landing/container";
 import { LinkButton } from "@/components/ui/button";
 
 const links = [
@@ -34,17 +33,18 @@ export function Nav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Container>
-        <div className="h-16 flex items-center justify-between">
+      <div className="px-6 md:px-10">
+        <div className="h-16 flex items-center justify-between gap-4">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="-ml-1"
           >
             <Link
               href="/"
               aria-label="bug.dr home"
-              className="flex items-center gap-2 -ml-1 p-1"
+              className="flex items-center gap-2 p-1"
             >
               <img
                 src="logos/primary-lockup.png"
@@ -92,7 +92,7 @@ export function Nav() {
             </LinkButton>
           </motion.div>
         </div>
-      </Container>
+      </div>
     </motion.header>
   );
 }
