@@ -130,11 +130,16 @@ export function Hero() {
                   : { delay: 0.5, ...SPRING_GENTLE }
               }
             >
-              <LinkButton href="#waitlist" size="lg">
+              <LinkButton href="#waitlist" size="lg" data-zoom-target="#waitlist">
                 Join the waitlist
                 <ArrowRight size={16} />
               </LinkButton>
-              <LinkButton href="#how-it-works" variant="secondary" size="lg">
+              <LinkButton
+                href="#how-it-works"
+                variant="secondary"
+                size="lg"
+                data-zoom-target="#how-it-works"
+              >
                 See how it works
               </LinkButton>
             </motion.div>

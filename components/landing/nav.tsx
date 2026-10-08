@@ -116,7 +116,7 @@ export function Nav() {
                 : { delay: 0.55, ...SPRING }
             }
           >
-            <LinkButton href="#waitlist" size="md">
+            <LinkButton href="#waitlist" size="md" data-zoom-target="#waitlist">
               Join waitlist
             </LinkButton>
           </motion.div>
