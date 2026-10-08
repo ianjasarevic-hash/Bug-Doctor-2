@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/landing/container";
 
@@ -28,8 +27,8 @@ export function Footer() {
         <div className="py-16">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-2 md:col-span-3">
-              <Image
-                src="/logos/primary-lockup.png"
+              <img
+                src="logos/primary-lockup.png"
                 alt="bug.dr"
                 width={108}
                 height={28}

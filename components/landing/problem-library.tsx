@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/landing/container";
 import { Bug } from "@/components/landing/icons";
@@ -76,6 +79,18 @@ const problems: Problem[] = [
   },
 ];
 
+// Per-card entry direction. Alternates L/R, then bottom, then L/R/bottom —
+// so the 6 cards "puzzle" into place from every side as the section scrolls
+// into view. Order is row-major (left→right, top→bottom) on the grid.
+const cardFrom: ("left" | "right" | "bottom" | "top")[] = [
+  "left",
+  "bottom",
+  "right",
+  "top",
+  "left",
+  "bottom",
+];
+
 export function ProblemLibrary() {
   return (
     <section
@@ -84,7 +99,13 @@ export function ProblemLibrary() {
       className="relative py-24 sm:py-32 border-t border-border"
     >
       <Container>
-        <div className="max-w-2xl">
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             Problem library
           </p>
@@ -100,11 +121,19 @@ export function ProblemLibrary() {
             Problems are grouped by area and difficulty, with hidden checks
             that run against your fix.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {problems.map((p) => (
-            <ProblemCard key={p.title} problem={p} />
+        <div
+          className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          style={{ perspective: 1200 }}
+        >
+          {problems.map((p, i) => (
+            <ProblemCard
+              key={p.title}
+              problem={p}
+              from={cardFrom[i % cardFrom.length]}
+              delay={i * 0.07}
+            />
           ))}
         </div>
       </Container>
@@ -112,9 +141,40 @@ export function ProblemLibrary() {
   );
 }
 
-function ProblemCard({ problem }: { problem: Problem }) {
+function ProblemCard({
+  problem,
+  from,
+  delay,
+}: {
+  problem: Problem;
+  from: "left" | "right" | "bottom" | "top";
+  delay: number;
+}) {
+  const reduce = useReducedMotion();
+  const off =
+    from === "left"
+      ? { x: -50, y: 0 }
+      : from === "right"
+        ? { x: 50, y: 0 }
+        : from === "top"
+          ? { x: 0, y: -40 }
+          : { x: 0, y: 40 };
+
   return (
-    <article className="group rounded-xl border border-border bg-surface hover:border-action/60 transition-colors overflow-hidden flex flex-col">
+    <motion.article
+      className="group rounded-xl border border-border bg-surface hover:border-action/60 overflow-hidden flex flex-col"
+      style={{ transformStyle: "preserve-3d" }}
+      initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{
+        y: -6,
+        rotateX: 4,
+        boxShadow: "0 24px 48px -12px rgba(0,0,0,0.55)",
+        transition: { duration: 0.2, ease: "easeOut" },
+      }}
+    >
       {/* Log "image" */}
       <div className="font-mono text-[12px] leading-5 bg-bg/60 border-b border-border px-4 py-3">
         <div className="flex items-center gap-2 text-muted text-[11px] uppercase tracking-wider">
@@ -154,11 +214,19 @@ function ProblemCard({ problem }: { problem: Problem }) {
             <span className="mx-2 text-border">·</span>
             <span>{problem.solved.toLocaleString()} solved</span>
           </span>
-          <span className="text-action opacity-0 group-hover:opacity-100 transition-opacity">
-            open →
+          <span className="text-action inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            open
+            <motion.span
+              aria-hidden
+              className="inline-block"
+              initial={{ x: 0 }}
+              whileHover={{ x: 3 }}
+            >
+              →
+            </motion.span>
           </span>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

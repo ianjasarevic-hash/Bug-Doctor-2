@@ -5,11 +5,6 @@ import { Container } from "@/components/landing/container";
 import { CodeBlock, type Line } from "@/components/landing/code-block";
 import { Check } from "@/components/landing/icons";
 
-// Same pool-leak case across all three steps:
-//   Diagnose: incident.md (pool exhaustion at 18:11 UTC, 4xx climbing)
-//   Treat:    pool.ts diff — wrap the leaky query in try/finally
-//   Discharge: production checks + `$ bugdr submit` terminal output
-
 const incidentStack: Line[] = [
   { tokens: [{ text: "Error: pool.query timeout after 30000ms", tone: "text" }] },
   { tokens: [{ text: "    at /services/checkout/pool.ts:42:18", tone: "muted" }] },
@@ -24,9 +19,9 @@ const poolOriginal: Line[] = [
 const poolAdded: Line[] = [
   { tokens: [{ text: "  ", tone: "muted" }, { text: "try", tone: "kw" }, { text: " {", tone: "punct" }] },
   { tokens: [{ text: "    ", tone: "muted" }, { text: "return ", tone: "kw" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".query(sql, params);", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "} ", tone: "punct" }, { text: "finally", tone: "kw" }, { text: " {", tone: "punct" }] },
+  { tokens: [{ text: "  } ", tone: "punct" }, { text: "finally", tone: "kw" }, { text: " {", tone: "punct" }] },
   { tokens: [{ text: "    ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".release();", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "}", tone: "punct" }] },
+  { tokens: [{ text: "  }", tone: "punct" }] },
 ];
 
 const dischargeChecks: { label: string; value: string }[] = [
@@ -36,7 +31,6 @@ const dischargeChecks: { label: string; value: string }[] = [
   { label: "test suite green", value: "14 / 14" },
 ];
 
-// Terminal output lines for `$ bugdr submit`. Highlight = accent colour.
 const terminal: { text: string; tone?: "prompt" | "ok" | "muted" | "accent" | "text" }[] = [
   { text: "$ bugdr submit", tone: "prompt" },
   { text: "" },
@@ -61,6 +55,8 @@ export function HowItWorks() {
       body:
         "Open the case file. A real bug report, a stack trace, the production error. The timer starts on Start. Nobody can leak the fix in comments until you solve it.",
       visual: <IncidentMock />,
+      copyFrom: "left" as const,
+      visualFrom: "right" as const,
     },
     {
       n: "02",
@@ -69,6 +65,8 @@ export function HowItWorks() {
       body:
         "Open the codebase in the browser IDE. Editor, terminal, live preview. Trace the bug. Ship a real diff. Use any tool you would on a real prod incident.",
       visual: <IdeMock />,
+      copyFrom: "right" as const,
+      visualFrom: "left" as const,
     },
     {
       n: "03",
@@ -77,6 +75,8 @@ export function HowItWorks() {
       body:
         "Automated production checks run against your fix. p99 under load, pool size, leak rate, test suite. When all four pass, the system is discharged healthy and your score is locked.",
       visual: <DischargeMock />,
+      copyFrom: "left" as const,
+      visualFrom: "right" as const,
     },
   ];
 
@@ -87,7 +87,13 @@ export function HowItWorks() {
       className="relative py-24 sm:py-32 border-t border-border"
     >
       <Container>
-        <div className="max-w-2xl">
+        <motion.div
+          className="max-w-2xl"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             How it works
           </p>
@@ -101,7 +107,7 @@ export function HowItWorks() {
             Every case follows the same three steps. Read the incident, ship
             the fix, prove it under load.
           </p>
-        </div>
+        </motion.div>
 
         <ol className="mt-14 space-y-16">
           {items.map((item) => (
@@ -109,20 +115,14 @@ export function HowItWorks() {
               key={item.n}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
             >
-              <div className="lg:col-span-5">
-                <div className="font-mono text-sm text-muted">
-                  <span className="text-action">{item.n}</span>
-                  <span aria-hidden> · </span>
-                  <span className="uppercase tracking-wider">{item.label}</span>
-                </div>
-                <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-muted text-lg leading-relaxed">
-                  {item.body}
-                </p>
-              </div>
-              <div className="lg:col-span-7">{item.visual}</div>
+              <HowCopy
+                n={item.n}
+                label={item.label}
+                title={item.title}
+                body={item.body}
+                from={item.copyFrom}
+              />
+              <HowVisual from={item.visualFrom}>{item.visual}</HowVisual>
             </li>
           ))}
         </ol>
@@ -131,7 +131,81 @@ export function HowItWorks() {
   );
 }
 
+function HowCopy({
+  n,
+  label,
+  title,
+  body,
+  from,
+}: {
+  n: string;
+  label: string;
+  title: string;
+  body: string;
+  from: "left" | "right";
+}) {
+  const reduce = useReducedMotion();
+  const x = from === "left" ? -60 : 60;
+  return (
+    <motion.div
+      className="lg:col-span-5"
+      initial={{ opacity: 0, x: reduce ? 0 : x, y: 20 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="font-mono text-sm text-muted">
+        <span className="text-action">{n}</span>
+        <span aria-hidden> · </span>
+        <span className="uppercase tracking-wider">{label}</span>
+      </div>
+      <h3 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">
+        {title}
+      </h3>
+      <p className="mt-3 text-muted text-lg leading-relaxed">{body}</p>
+    </motion.div>
+  );
+}
+
+function HowVisual({
+  from,
+  children,
+}: {
+  from: "left" | "right" | "top" | "bottom";
+  children: React.ReactNode;
+}) {
+  const reduce = useReducedMotion();
+  const off =
+    from === "left"
+      ? { x: -60, y: 0 }
+      : from === "right"
+        ? { x: 60, y: 0 }
+        : from === "top"
+          ? { x: 0, y: -40 }
+          : { x: 0, y: 40 };
+  return (
+    <motion.div
+      className="lg:col-span-7"
+      initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function IncidentMock() {
+  // Stagger: header → title → body → stack
+  const reduce = useReducedMotion();
+  const fade = (i: number) => ({
+    initial: { opacity: 0, y: reduce ? 0 : 16 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.4, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
+  });
+
   return (
     <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
       <div className="flex items-center justify-between border-b border-border bg-bg/50 px-4 py-2 font-mono text-[11px]">
@@ -139,23 +213,33 @@ function IncidentMock() {
         <span className="text-muted">checkout · prod-east-1</span>
       </div>
       <div className="p-5 font-mono text-[13px] leading-6">
-        <div className="text-text">
+        <motion.div className="text-text" {...fade(0)}>
           # 2026-09-30 · checkout pool p99 spikes to 4.2s
-        </div>
-        <div className="text-muted mt-2">
+        </motion.div>
+        <motion.div className="text-muted mt-2" {...fade(1)}>
           Started 18:11 UTC. 4xx rate on POST /checkout climbed from 0.4%
           to 8.1%. Page fires.
-        </div>
-        <div className="mt-3 text-text">stack:</div>
-        <div className="mt-2 bg-bg rounded-md p-3 overflow-x-auto">
+        </motion.div>
+        <motion.div className="mt-3 text-text" {...fade(2)}>
+          stack:
+        </motion.div>
+        <motion.div
+          className="mt-2 bg-bg rounded-md p-3 overflow-x-auto"
+          {...fade(3)}
+        >
           <CodeBlock lines={incidentStack} showLineNumbers={false} />
-        </div>
+        </motion.div>
       </div>
     </div>
   );
 }
 
 function IdeMock() {
+  // Diff animation: the "removed" lines slide out to the left, the "added"
+  // lines slide in from the right. Done with the same per-line RevealItem
+  // pattern but explicit so we can target each side.
+  const reduce = useReducedMotion();
+
   return (
     <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
       <div className="flex items-center gap-2 border-b border-border bg-bg/50 px-3 py-2 font-mono text-[11px]">
@@ -166,7 +250,18 @@ function IdeMock() {
       </div>
       <div className="bg-bg px-4 py-3 text-[13px] leading-6 overflow-x-auto">
         {poolOriginal.map((line, i) => (
-          <div key={`r-${i}`} className="flex">
+          <motion.div
+            key={`r-${i}`}
+            className="flex"
+            initial={{ opacity: 0, x: reduce ? 0 : -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{
+              duration: 0.4,
+              delay: 0.2 + i * 0.08,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
             <span className="shrink-0 select-none w-6 text-diffImpossible/80 pr-6">
               −
             </span>
@@ -175,10 +270,21 @@ function IdeMock() {
                 <span key={j}>{tok.text}</span>
               ))}
             </span>
-          </div>
+          </motion.div>
         ))}
         {poolAdded.map((line, i) => (
-          <div key={`a-${i}`} className="flex">
+          <motion.div
+            key={`a-${i}`}
+            className="flex"
+            initial={{ opacity: 0, x: reduce ? 0 : 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{
+              duration: 0.4,
+              delay: 0.45 + i * 0.08,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
             <span className="shrink-0 select-none w-6 text-diffEasy pr-6">
               +
             </span>
@@ -187,16 +293,14 @@ function IdeMock() {
                 <span
                   key={j}
                   className={
-                    tok.tone === "kw"
-                      ? "text-diffEasy"
-                      : "text-text"
+                    tok.tone === "kw" ? "text-diffEasy" : "text-text"
                   }
                 >
                   {tok.text}
                 </span>
               ))}
             </span>
-          </div>
+          </motion.div>
         ))}
       </div>
       <div className="flex items-center justify-between border-t border-border bg-bg/60 px-4 py-2 font-mono text-[11px] text-muted">
@@ -212,7 +316,7 @@ function IdeMock() {
 }
 
 function DischargeMock() {
-  const reduceMotion = useReducedMotion();
+  const reduce = useReducedMotion();
 
   // Per-line reveal animation: each line fades in 80ms after the previous.
   // Respects prefers-reduced-motion by skipping the stagger.
@@ -221,11 +325,23 @@ function DischargeMock() {
     show: (i: number) => ({
       opacity: 1,
       transition: {
-        delay: reduceMotion ? 0 : i * 0.08,
+        delay: reduce ? 0 : 0.3 + i * 0.08,
         duration: 0.18,
       },
     }),
   };
+
+  // Check rows: stagger in from the right.
+  const checkVariants = (i: number) => ({
+    initial: { opacity: 0, x: reduce ? 0 : 30 },
+    whileInView: { opacity: 1, x: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: {
+      duration: 0.45,
+      delay: 0.15 + i * 0.08,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  });
 
   return (
     <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
@@ -238,16 +354,20 @@ function DischargeMock() {
 
       {/* Check rows (no inner boxes — just rows) */}
       <div className="px-5 py-4 space-y-1.5 font-mono text-[13px]">
-        {dischargeChecks.map((c) => (
-          <div key={c.label} className="flex items-center gap-3">
+        {dischargeChecks.map((c, i) => (
+          <motion.div
+            key={c.label}
+            className="flex items-center gap-3"
+            {...checkVariants(i)}
+          >
             <span className="text-success">✓</span>
             <span className="text-text flex-1">{c.label}</span>
             <span className="text-muted">{c.value}</span>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Terminal output. The same panel continues as $ bugdr submit. */}
+      {/* Terminal output. */}
       <div className="border-t border-border bg-bg px-5 py-4 overflow-x-auto">
         <motion.div
           initial="hidden"
@@ -270,7 +390,7 @@ function DischargeMock() {
                       : "text-muted"
               }
             >
-              {line.text === "" ? " " : line.text}
+              {line.text === "" ? " " : line.text}
             </motion.div>
           ))}
         </motion.div>

@@ -1,24 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
 
-// TODO: replace with real waitlist endpoint (e.g. Resend audience, ConvertKit,
-// Airtable). The current submitter opens a prefilled mailto to the founding
-// team's inbox so leads aren't dropped on the floor during pre-launch.
 const WAITLIST_TO = "hi@bug.dr";
 const WAITLIST_SUBJECT = "bug.dr · waitlist";
-
-// TODO: replace with the live count once we have one. Until then the line
-// below the form is hidden.
 const WAITLIST_COUNT: number | null = null;
+
+const reasons = [
+  "Engineer who's tired of algorithm interviews",
+  "Hiring manager looking for real signal",
+  "Curious, want to follow along",
+  "Working on something adjacent",
+];
 
 export function Waitlist() {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [reason, setReason] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const reduce = useReducedMotion();
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,7 +55,13 @@ export function Waitlist() {
     >
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          <div className="lg:col-span-7">
+          <motion.div
+            className="lg:col-span-7"
+            initial={{ opacity: 0, x: reduce ? 0 : -60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          >
             <p className="font-mono text-xs uppercase tracking-widest text-action">
               Launching · October 20
             </p>
@@ -69,27 +78,47 @@ export function Waitlist() {
             </p>
 
             <ul className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              {[
-                "Engineer who's tired of algorithm interviews",
-                "Hiring manager looking for real signal",
-                "Curious, want to follow along",
-                "Working on something adjacent",
-              ].map((x) => (
-                <li
-                  key={x}
-                  className="flex items-start gap-2 font-mono text-[13px] text-muted"
-                >
-                  <span
-                    aria-hidden
-                    className="mt-2 h-1.5 w-1.5 rounded-full bg-action shrink-0"
-                  />
-                  <span>{x}</span>
-                </li>
-              ))}
+              {reasons.map((x, i) => {
+                const xDir = i % 2 === 0 ? -20 : 20;
+                return (
+                  <motion.li
+                    key={x}
+                    className="flex items-start gap-2 font-mono text-[13px] text-muted"
+                    initial={{ opacity: 0, x: reduce ? 0 : xDir }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.2 + i * 0.08,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
+                    <motion.span
+                      aria-hidden
+                      className="mt-2 h-1.5 w-1.5 rounded-full bg-action shrink-0"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true, amount: 0.3 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: 0.3 + i * 0.08,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                    />
+                    <span>{x}</span>
+                  </motion.li>
+                );
+              })}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="lg:col-span-5">
+          <motion.div
+            className="lg:col-span-5"
+            initial={{ opacity: 0, x: reduce ? 0 : 60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             <form
               onSubmit={submit}
               className="rounded-xl border border-border bg-surface shadow-card p-6"
@@ -166,14 +195,13 @@ export function Waitlist() {
                   : "no spam. one email when we open."}
               </div>
 
-              {/* Waitlist size — visible only when the count is real. */}
               {WAITLIST_COUNT !== null ? (
                 <div className="mt-1 font-mono text-[11px] text-muted">
                   {WAITLIST_COUNT.toLocaleString()} engineers on the waitlist.
                 </div>
               ) : null}
             </form>
-          </div>
+          </motion.div>
         </div>
       </Container>
     </section>

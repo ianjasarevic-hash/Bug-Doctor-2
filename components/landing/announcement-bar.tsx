@@ -1,15 +1,19 @@
+"use client";
+
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { Container } from "@/components/landing/container";
 import { Countdown } from "@/components/landing/countdown";
 
-// Sits above the navbar, scrolls away with the page. Highest visibility
-// "where everyone will see it" slot for the launch date.
 export function AnnouncementBar() {
   return (
-    <div
+    <motion.div
       role="region"
       aria-label="Launch announcement"
       className="relative z-40 bg-surface/80 backdrop-blur-sm border-b border-border"
+      initial={{ y: -40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
     >
       <Container>
         <Link
@@ -34,6 +38,6 @@ export function AnnouncementBar() {
           </div>
         </Link>
       </Container>
-    </div>
+    </motion.div>
   );
 }

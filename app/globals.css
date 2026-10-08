@@ -83,6 +83,17 @@ html {
   background-size: 100% 24px;
 }
 
+/* Terminal cursor blink — used by the animated terminal in the BrowserIDE
+   section. The "type" animation drives how many characters are visible;
+   this just keeps the trailing block blinking. */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 1s steps(1, end) infinite;
+}
+
 /* Scrollbar (webkit) */
 ::-webkit-scrollbar {
   width: 10px;
