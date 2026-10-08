@@ -84,7 +84,7 @@ export function HowItWorks() {
     <section
       id="how-it-works"
       aria-labelledby="how-heading"
-      className="relative py-24 sm:py-32 border-t border-border"
+      className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
         <motion.div
@@ -99,8 +99,7 @@ export function HowItWorks() {
           </p>
           <h2
             id="how-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-glow-pulse"
-            data-glow="Diagnose. Treat. Discharge."
+            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
           >
             Diagnose. Treat. Discharge.
           </h2>

@@ -51,7 +51,7 @@ export function Waitlist() {
     <section
       id="waitlist"
       aria-labelledby="waitlist-heading"
-      className="relative py-24 sm:py-32 border-t border-border cv-auto"
+      className="relative py-24 sm:py-32 divider-top cv-auto"
     >
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">

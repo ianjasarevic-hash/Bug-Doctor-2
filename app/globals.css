@@ -110,6 +110,25 @@ html {
   background: var(--text-muted);
 }
 
+/* ── Section dividers ──────────────────────────────────────────────────── */
+
+/* Replaces the default 1px solid border between sections with a soft
+   gradient — the line is heavier in the middle and fades at the edges, so
+   it reads as a divider without feeling like a hard line. */
+.divider-top {
+  border-top: 1px solid transparent;
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--border) 20%,
+    var(--border) 80%,
+    transparent 100%
+  );
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: top;
+}
+
 /* ── Performance utilities ──────────────────────────────────────────────── */
 
 /* content-visibility: auto skips rendering work for off-screen sections.
@@ -155,7 +174,8 @@ html {
 
 /* Pulsing text glow — same trick, opacity on a pseudo that duplicates the
    parent's text. The data attribute carries the text so we don't have to
-   wrap every glowing phrase in JSX. */
+   wrap every glowing phrase in JSX. Three layers of saturated blue, with
+   a tight inner ring for "punch" and a wider outer halo for presence. */
 .text-glow-pulse {
   position: relative;
 }
@@ -166,11 +186,12 @@ html {
   pointer-events: none;
   color: transparent;
   text-shadow:
-    0 0 20px rgba(139, 172, 255, 0.40),
-    0 0 48px rgba(139, 172, 255, 0.18);
-  animation: text-glow-breathe 3.2s ease-in-out infinite;
+    0 0 8px  rgba(96, 165, 250, 0.95),
+    0 0 22px rgba(59, 130, 246, 0.70),
+    0 0 44px rgba(37, 99, 235, 0.35);
+  animation: text-glow-breathe 4s ease-in-out infinite;
 }
 @keyframes text-glow-breathe {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 0.90; }
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1.00; }
 }

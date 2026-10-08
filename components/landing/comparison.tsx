@@ -70,8 +70,7 @@ export function Comparison() {
           </p>
           <h2
             id="comparison-heading"
-            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-glow-pulse"
-            data-glow="The interview tests the wrong thing."
+            className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight"
           >
             The interview tests the wrong thing.
           </h2>

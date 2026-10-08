@@ -96,7 +96,7 @@ export function ProblemLibrary() {
     <section
       id="library"
       aria-labelledby="library-heading"
-      className="relative py-24 sm:py-32 border-t border-border cv-auto"
+      className="relative py-24 sm:py-32 divider-top cv-auto"
     >
       <Container>
         <motion.div

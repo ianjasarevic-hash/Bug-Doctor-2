@@ -73,9 +73,13 @@ export function Nav() {
               >
                 <Link
                   href={l.href}
-                  className="text-sm text-muted hover:text-text transition-colors"
+                  className="group relative text-sm text-muted hover:text-text transition-colors"
                 >
                   {l.label}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-text/70 transition-transform duration-200 group-hover:scale-x-100"
+                  />
                 </Link>
               </motion.div>
             ))}

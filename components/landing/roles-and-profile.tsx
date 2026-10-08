@@ -111,7 +111,7 @@ export function RolesAndProfile() {
     <section
       id="profile"
       aria-labelledby="profile-heading"
-      className="relative py-24 sm:py-32 border-t border-border cv-auto"
+      className="relative py-24 sm:py-32 divider-top cv-auto"
     >
       <Container>
         <motion.div
