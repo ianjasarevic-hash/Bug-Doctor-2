@@ -99,7 +99,7 @@ export function Hero() {
               </span>
               . You fix it.{" "}
               <span
-                className="text-text font-medium text-glow-soft"
+                className="text-text font-medium"
                 data-glow="Automated production checks prove you did."
               >
                 Automated production checks prove you did.
