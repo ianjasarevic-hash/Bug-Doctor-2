@@ -174,8 +174,7 @@ html {
 
 /* Pulsing text glow — same trick, opacity on a pseudo that duplicates the
    parent's text. The data attribute carries the text so we don't have to
-   wrap every glowing phrase in JSX. Three layers of saturated blue, with
-   a tight inner ring for "punch" and a wider outer halo for presence. */
+   wrap every glowing phrase in JSX. */
 .text-glow-pulse {
   position: relative;
 }
@@ -186,12 +185,29 @@ html {
   pointer-events: none;
   color: transparent;
   text-shadow:
-    0 0 8px  rgba(96, 165, 250, 0.95),
-    0 0 22px rgba(59, 130, 246, 0.70),
-    0 0 44px rgba(37, 99, 235, 0.35);
-  animation: text-glow-breathe 4s ease-in-out infinite;
+    0 0 20px rgba(139, 172, 255, 0.40),
+    0 0 48px rgba(139, 172, 255, 0.18);
+  animation: text-glow-breathe 3.2s ease-in-out infinite;
 }
 @keyframes text-glow-breathe {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 1.00; }
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.90; }
+}
+
+/* Softer variant — same pseudo-element technique but a near-white halo
+   with much lower opacity. Use on supporting text where a blue glow would
+   compete with the primary phrase. */
+.text-glow-soft {
+  position: relative;
+}
+.text-glow-soft::after {
+  content: attr(data-glow);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: transparent;
+  text-shadow:
+    0 0 14px rgba(242, 243, 245, 0.22),
+    0 0 32px rgba(139, 172, 255, 0.10);
+  animation: text-glow-breathe 3.2s ease-in-out infinite;
 }

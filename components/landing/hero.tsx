@@ -69,7 +69,7 @@ export function Hero() {
           {/* Copy — first-load choreography: every element from a different side */}
           <div className="max-w-xl">
             <motion.h1
-              className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-semibold tracking-[-0.02em] leading-[1.02]"
+              className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -96,14 +96,14 @@ export function Hero() {
               stack trace, find the leak, and ship the fix at 3am. bug.dr drops
               you into a{" "}
               <span
-                className="text-text font-medium text-glow-pulse"
+                className="text-text font-medium text-glow-soft"
                 data-glow="real, broken production codebase"
               >
                 real, broken production codebase
               </span>
               . You fix it.{" "}
               <span
-                className="text-text font-medium text-glow-pulse"
+                className="text-text font-medium text-glow-soft"
                 data-glow="Automated production checks prove you did."
               >
                 Automated production checks prove you did.
