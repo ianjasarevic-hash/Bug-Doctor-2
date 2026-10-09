@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LinkButton } from "@/components/ui/button";
 import { initSectionFocusTracker } from "@/lib/section-focus";
+import { assetPath } from "@/lib/asset-path";
 
 // Top navigation.
 //
@@ -100,15 +101,12 @@ export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
               aria-label="bug.dr home"
               className="flex items-center gap-2 p-1"
             >
-              {/* Relative path (no leading "/") so the logo resolves
-                  from every route on the GitHub Pages site
-                  (the home page, /privacy/, /terms/). Using next/image
-                  so the basePath (set in production to "/BugDoctor")
-                  is prepended automatically. With images.unoptimized
-                  (set in next.config.mjs for the static export) this
-                  just renders a regular <img> at build time. */}
+              {/* assetPath() prepends the production basePath
+                  (/BugDoctor) so the logo resolves on every route
+                  (/, /privacy/, /terms/). In dev it returns just
+                  "/logos/primary-lockup.png". */}
               <Image
-                src="logos/primary-lockup.png"
+                src={assetPath("/logos/primary-lockup.png")}
                 alt="bug.dr"
                 width={108}
                 height={28}
