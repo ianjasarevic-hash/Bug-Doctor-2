@@ -38,7 +38,7 @@ const rows: Row[] = [
     label: "What gets measured",
     interview: "Whether the output matches.",
     bugdr:
-      "Correctness, code quality, verification, time and AI usage.",
+      "How you worked, not only whether the output matches.",
   },
   {
     label: "How the fix is verified",

@@ -61,8 +61,8 @@ export function RolesAndProfile() {
             Pick a role. Show your work.
           </h2>
           <p className="mt-3 text-muted text-lg leading-relaxed">
-            Six roles, four levels. Every problem is graded against the same
-            acceptance checks, so your score means the same thing across roles.
+            Six roles, four levels. Your profile shows the problems you have
+            shipped and the score you earned on each.
           </p>
         </div>
 

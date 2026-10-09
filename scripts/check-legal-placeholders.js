@@ -26,11 +26,19 @@ const path = require("path");
 
 // Files to scan. Resolved relative to the repo root (one level up
 // from this script).
+//
+// `lib/operator.ts` is included so a placeholder value in the
+// operator config (e.g. `email: "[CONTACT EMAIL]"`) is caught
+// here, the same way a placeholder hardcoded in the page copy
+// would be. The two render paths (OperatorLine, ContactEmail)
+// both branch on `isPlaceholder()`, so the literal placeholder
+// text only appears in this file and in the rendered HTML.
 const SCAN_FILES = [
   "app/privacy/page.tsx",
   "app/terms/page.tsx",
   "components/landing/footer.tsx",
   "components/landing/legal-page.tsx",
+  "lib/operator.ts",
 ];
 
 // Patterns to flag. Two groups:

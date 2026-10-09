@@ -18,19 +18,23 @@
 export const operator = {
   // Natural person operating bug.dr (s.p. form not yet registered).
   // Replace the address string below with the registered address
-  // when the s.p. registration is finalised.
+  // when the s.p. registration is finalised. Keep `email` as the
+  // bracketed placeholder until the contact address is finalised;
+  // the build guard fails the production build while it's a
+  // placeholder, so a release with `[CONTACT EMAIL]` in the
+  // rendered HTML is not possible.
   name: "Anže Pišlar",
   address: "[STILL NEEDED - full street address]",
-  email: "privacy@bugdr.app",
+  email: "[CONTACT EMAIL]",
   registrationId: "",
 } as const;
 
 export function isPlaceholder(value: string): boolean {
   // Matches a bracketed token with at least one space- or
-  // hyphen-separated all-caps word, e.g. "[CONTACT EMAIL]" or
-  // "[GOVERNING LAW AND COURT CITY]". Used to detect fields that
-  // haven't been filled in yet. An empty string is not a placeholder
-  // — it means the field is intentionally unset (e.g. registration
-  // id) and should not be rendered at all.
-  return /^\[[A-Z0-9][A-Z0-9 _,\.\(\)\-:]*\]$/.test(value);
+  // hyphen-separated all-caps word, e.g. CONTACT EMAIL or GOVERNING
+  // LAW AND COURT CITY. Used to detect fields that haven't been
+  // filled in yet. An empty string is not a placeholder — it means
+  // the field is intentionally unset (e.g. registration id) and
+  // should not be rendered at all.
+  return /^\[[A-Z\d][A-Z\d _,\.\(\)\-:]*\]$/.test(value);
 }

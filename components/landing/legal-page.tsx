@@ -53,9 +53,7 @@ export function LegalPage({
               </h1>
               <div className="mt-4 text-sm text-muted">
                 <p className="font-mono text-[11px]">{lastUpdated}</p>
-                <p className="mt-2">
-                  <OperatorLine className="text-sm font-sans" />
-                </p>
+                <OperatorLine className="mt-2 text-sm font-sans" />
               </div>
             </div>
 

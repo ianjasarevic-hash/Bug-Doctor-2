@@ -76,3 +76,21 @@ export const ChevronDown = ({ size = 18, ...p }: Props) => (
     <path d="M6 9l6 6 6-6" />
   </svg>
 );
+
+export const Menu = ({ size = 20, ...p }: Props) => (
+  <svg width={size} height={size} {...base} {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </svg>
+);
+
+export const Close = ({ size = 20, ...p }: Props) => (
+  <svg width={size} height={size} {...base} {...p}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+
+export const ArrowLeft = ({ size = 16, ...p }: Props) => (
+  <svg width={size} height={size} {...base} {...p}>
+    <path d="M19 12H5M12 5l-7 7 7 7" />
+  </svg>
+);

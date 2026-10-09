@@ -50,7 +50,7 @@ export function HowItWorks() {
       label: "Submit and get scored",
       title: "Pass the checks.",
       body:
-        "Submit and the acceptance checks run one by one. Pass them all and the problem is solved. Correctness and reliability weigh most, then code quality, verification, time and AI efficiency. Your first successful result is final.",
+        "Submit and the acceptance checks run one by one. Pass them all and the problem is solved.",
       visual: <StaticChecksCard />,
     },
   ];
@@ -215,9 +215,10 @@ function StaticDiffCard() {
 // ── StaticChecksCard (step 03) ────────────────────────────────────────────
 //
 // Static acceptance-checks card. Lists the 7 real names from
-// `acceptanceChecks` and shows the "first successful result is final" note
-// at the bottom. No animation, no score-locked pill — the hero already
-// shows the live "ticking in" version; this is the after-the-fact summary.
+// `acceptanceChecks`. No animation, no score-locked pill — the hero
+// already shows the live "ticking in" version; this is the after-the-
+// fact summary. The "first successful result is final" rule now lives
+// in the scorecard section and the FAQ, not here.
 
 function StaticChecksCard() {
   return (
@@ -245,9 +246,6 @@ function StaticChecksCard() {
             <span className="text-text/85 min-w-0 break-words">{c.label}</span>
           </div>
         ))}
-      </div>
-      <div className="border-t border-border px-4 py-2.5 font-mono text-[12px] text-muted">
-        first successful result is final
       </div>
     </div>
   );

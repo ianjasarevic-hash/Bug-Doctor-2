@@ -20,7 +20,7 @@ import { ChevronDown } from "@/components/landing/icons";
 const faqs = [
   {
     q: "Is using AI allowed?",
-    a: "It's the point. Everyone has AI now. We measure how well you use it: correctness first, then code quality, verification, time and AI efficiency. Fewer tokens or fewer lines do not automatically score higher.",
+    a: "The assistant is built into the workspace. Use it as you would at work: ask questions, read its suggestions, decide what to ship. Your prompts and usage are recorded as part of your score, and nothing about the assistant is banned.",
   },
   {
     q: "Where do the problems come from?",
@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     q: "How is the score calculated?",
-    a: "Correctness and reliability weigh most, then code quality, verification, time and AI efficiency. Fewer tokens or fewer lines do not automatically score higher.",
+    a: "Correctness and reliability weigh most, then code quality, verification, time and AI usage. Your first successful result is final, so submit when you are ready. Fewer tokens or fewer lines do not automatically score higher.",
   },
   {
     q: "When will bug.dr launch?",
