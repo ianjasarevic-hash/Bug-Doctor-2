@@ -27,7 +27,6 @@ export function AnnouncementBar() {
       <Container>
         <Link
           href="#waitlist"
-          data-particle-target="#waitlist"
           className="block hover:bg-surface/60 transition-colors"
         >
           <div className="py-2 flex items-center justify-center gap-2 text-[12.5px] font-mono">

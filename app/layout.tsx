@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { ParticleBoundary } from "@/components/particle-boundary";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,13 +25,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://bug.dr"),
-  title: "bug.dr — prove you can fix production bugs",
+  title: "bug.dr · measure how engineers ship with AI",
   description:
-    "AI can solve LeetCode. It can't fix prod at 3am. bug.dr drops engineers into real broken production codebases. Read the incident, ship a fix, pass the checks.",
+    "bug.dr drops engineers into a real broken codebase with an AI assistant in the editor. You investigate, fix and verify. We score how well you did it.",
   openGraph: {
-    title: "bug.dr — prove you can fix production bugs",
+    title: "bug.dr · measure how engineers ship with AI",
     description:
-      "Real codebases. Real bugs. Real checks. Prove you can be trusted with prod.",
+      "Production-style codebases, AI assistant in the editor, acceptance checks listed upfront. See how well you ship with AI.",
     type: "website",
     images: ["/og.png"],
   },
@@ -73,7 +72,6 @@ export default function RootLayout({
         <div id="page-content" className="relative z-10">
           {children}
         </div>
-        <ParticleBoundary />
       </body>
     </html>
   );

@@ -11,8 +11,11 @@ type Tone =
   | "danger"
   | "brand";
 
-// Difficulty palette — see tailwind.config.ts (diffEasy/Medium/Hard/Impossible).
-// Consistent across problem cards, score card, role cards.
+// Semantic palette — see tailwind.config.ts (diffEasy/Medium/Hard/Impossible
+// for diff/severity colours; success/warn/danger/brand for status). The
+// "impossible" tone here is a red-ish hue for diff/failed-state UI, NOT the
+// product's difficulty tier (the tier system is Easy/Medium/Hard/Get a job
+// and is rendered inside the app screenshots, not on this page).
 const tones: Record<Tone, string> = {
   neutral: "border-border text-muted",
   easy: "border-diffEasy/40 text-diffEasy",

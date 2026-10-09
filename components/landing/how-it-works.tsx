@@ -2,49 +2,23 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
-import { CodeBlock, type Line } from "@/components/landing/code-block";
+import { type Line, TONE_CLASS } from "@/components/landing/code-block";
 import { Check } from "@/components/landing/icons";
-import { SPRING, SPRING_GENTLE } from "@/lib/motion";
+import { ZoomableImage } from "@/components/ui/zoomable-image";
+import { SPRING_GENTLE } from "@/lib/motion";
 
-const incidentStack: Line[] = [
-  { tokens: [{ text: "Error: pool.query timeout after 30000ms", tone: "text" }] },
-  { tokens: [{ text: "    at /services/checkout/pool.ts:42:18", tone: "muted" }] },
-  { tokens: [{ text: "    at runMicrotasks", tone: "muted" }] },
-  { tokens: [{ text: "    at processTicksAndRejections", tone: "muted" }] },
-];
-
-const poolOriginal: Line[] = [
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "const ", tone: "kw" }, { text: "client", tone: "fn" }, { text: " = ", tone: "muted" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "pool", tone: "fn" }, { text: ".connect();", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "return ", tone: "kw" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".query(sql, params);", tone: "punct" }] },
-];
-const poolAdded: Line[] = [
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "try", tone: "kw" }, { text: " {", tone: "punct" }] },
-  { tokens: [{ text: "    ", tone: "muted" }, { text: "return ", tone: "kw" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".query(sql, params);", tone: "punct" }] },
-  { tokens: [{ text: "  } ", tone: "punct" }, { text: "finally", tone: "kw" }, { text: " {", tone: "punct" }] },
-  { tokens: [{ text: "    ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".release();", tone: "punct" }] },
-  { tokens: [{ text: "  }", tone: "punct" }] },
-];
-
-const dischargeChecks: { label: string; value: string }[] = [
-  { label: "p99 latency < 300ms @ 500 rps", value: "142ms" },
-  { label: "pool size never exceeds 20", value: "16 / 20" },
-  { label: "no connection leak under load", value: "0 leaks / M" },
-  { label: "test suite green", value: "14 / 14" },
-];
-
-const terminal: { text: string; tone?: "prompt" | "ok" | "muted" | "accent" | "text" }[] = [
-  { text: "$ bugdr submit", tone: "prompt" },
-  { text: "" },
-  { text: "✓ p99 latency      142ms   (budget 300ms)", tone: "ok" },
-  { text: "✓ pool size        16/20", tone: "ok" },
-  { text: "✓ connection leaks 0", tone: "ok" },
-  { text: "✓ test suite       14/14", tone: "ok" },
-  { text: "base        hard           400", tone: "muted" },
-  { text: "time        18:42 / 45:00  ×1.4", tone: "muted" },
-  { text: "diff        +6 −2          ×1.2", tone: "muted" },
-  { text: "─────────────────────────────", tone: "muted" },
-  { text: "score                      672 XP", tone: "accent" },
-  { text: "prod-ready                 94%   discharged", tone: "text" },
+// Real acceptance checks from the Payment retries problem (problem-detail.png).
+// Used by step 03 (the static checks card). HeroIDE exports its own copy so
+// the two visuals can live independently; the labels here are the source of
+// truth for the rest of the page.
+const acceptanceChecks: { label: string }[] = [
+  { label: "Retry transient failures" },
+  { label: "Prevent duplicate charges" },
+  { label: "Back off between retries" },
+  { label: "Existing tests still pass" },
+  { label: "Preserve successful payments" },
+  { label: "Keep the worker healthy" },
+  { label: "Keep failed jobs visible in the queue" },
 ];
 
 export function HowItWorks() {
@@ -56,7 +30,7 @@ export function HowItWorks() {
       title: "Read the incident.",
       body:
         "Open the case file. A real bug report, a stack trace, the production error. The timer starts on Start. Nobody can leak the fix in comments until you solve it.",
-      visual: <IncidentMock />,
+      visual: <ProblemDetailShot />,
       copyFrom: "left" as const,
       visualFrom: "right" as const,
     },
@@ -65,18 +39,22 @@ export function HowItWorks() {
       label: "Treat",
       title: "Fix it in the browser.",
       body:
-        "Open the codebase in the browser IDE. Editor, terminal, live preview. Trace the bug. Ship a real diff. Use any tool you would on a real prod incident.",
-      visual: <IdeMock />,
+        "Open the codebase in the browser. Editor, terminal and an AI assistant in one workspace. Trace the bug, ask the AI for a fix, ship a real diff. Your prompts, tokens and runs are tracked as you work.",
+      // Same two-line diff the user sees animated in the hero, but rendered
+      // as a small static card so the section doesn't compete with the
+      // hero's animation. No tabs, no code editor, no AI prompt — just the
+      // lines that fix the retry loop.
+      visual: <StaticDiffCard />,
       copyFrom: "right" as const,
       visualFrom: "left" as const,
     },
     {
       n: "03",
-      label: "Discharge",
+      label: "Submit and get scored",
       title: "Pass the checks.",
       body:
-        "Automated production checks run against your fix. p99 under load, pool size, leak rate, test suite. When all four pass, the system is discharged healthy and your score is locked.",
-      visual: <DischargeMock />,
+        "Submit and the acceptance checks run one by one. Pass them all and the problem is solved. Correctness and reliability weigh most, then code quality, verification, time and AI efficiency. Your first successful result is final.",
+      visual: <StaticChecksCard />,
       copyFrom: "left" as const,
       visualFrom: "right" as const,
     },
@@ -107,11 +85,11 @@ export function HowItWorks() {
             id="how-heading"
             className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
-            Diagnose. Treat. Discharge.
+            Diagnose. Treat. Submit.
           </h2>
           <p className="mt-4 text-muted text-lg leading-relaxed">
             Every case follows the same three steps. Read the incident, ship
-            the fix, prove it under load.
+            the fix, prove it on the acceptance checks.
           </p>
         </motion.div>
 
@@ -210,212 +188,149 @@ function HowVisual({
   );
 }
 
-function IncidentMock() {
-  // Stagger: header → title → body → stack
-  const reduce = useReducedMotion();
-  const fade = (i: number) => ({
-    initial: { opacity: 0, y: reduce ? 0 : 16 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.2 },
-    transition: reduce
-      ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.1 }
-      : { delay: 0.2 + i * 0.1, ...SPRING },
-  });
-
+function ProblemDetailShot() {
+  // Real product screenshot for step 01 ("Read the incident"). The visitor
+  // sees the real assignment, incident log and acceptance checks, not a
+  // mock. Wrapped in ZoomableImage so the user can open it fullscreen to
+  // read the assignment.
   return (
     <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border bg-bg/50 px-4 py-2 font-mono text-[11px]">
-        <span className="text-muted">incident.md</span>
-        <span className="text-muted">checkout · prod-east-1</span>
-      </div>
-      <div className="p-5 font-mono text-[13px] leading-6">
-        <motion.div className="text-text" {...fade(0)}>
-          # 2026-09-30 · checkout pool p99 spikes to 4.2s
-        </motion.div>
-        <motion.div className="text-muted mt-2" {...fade(1)}>
-          Started 18:11 UTC. 4xx rate on POST /checkout climbed from 0.4%
-          to 8.1%. Page fires.
-        </motion.div>
-        <motion.div className="mt-3 text-text" {...fade(2)}>
-          stack:
-        </motion.div>
-        <motion.div
-          className="mt-2 bg-bg rounded-md p-3 overflow-x-auto"
-          {...fade(3)}
-        >
-          <CodeBlock lines={incidentStack} showLineNumbers={false} />
-        </motion.div>
-      </div>
+      <ZoomableImage
+        src="/screenshots/problem-detail.png"
+        alt="Payment retries problem page showing the assignment, incident log and acceptance checks."
+        width={1570}
+        height={1600}
+        sizes="(min-width: 1024px) 700px, 100vw"
+      />
     </div>
   );
 }
 
-function IdeMock() {
-  // Diff animation: the "removed" lines slide out to the left, the "added"
-  // lines slide in from the right. Done with the same per-line RevealItem
-  // pattern but explicit so we can target each side.
-  const reduce = useReducedMotion();
+// ── StaticDiffCard (step 02) ──────────────────────────────────────────────
+//
+// Small static card that shows the same two-line diff the user sees
+// animated in the hero, without the editor chrome or the ask-ai line.
+// Just the diff header and the two added lines that fix the retry loop
+// (idempotency key on charge, exponential backoff after a failed attempt).
+// No animation — the section already has scroll-in motion from HowVisual.
+//
+// The two lines are kept in lock-step with the hero's `addedCode` in
+// `components/landing/hero.tsx`. If one is edited, the other must be too.
 
+// Helper: token tone -> Tailwind class. Falls back to body text.
+function cls(tone: Line["tokens"][number]["tone"]): string {
+  return TONE_CLASS[tone ?? "muted"] ?? "text-text";
+}
+
+const diffLines: Line[] = [
+  // + const result = await charge(order, { idempotencyKey: order.id });
+  {
+    tokens: [
+      { text: "const", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "result", tone: "fn" },
+      { text: " = ", tone: "muted" },
+      { text: "await", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "charge", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ", ", tone: "punct" },
+      { text: "{", tone: "punct" },
+      { text: " ", tone: "muted" },
+      { text: "idempotencyKey", tone: "fn" },
+      { text: ": ", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ".", tone: "punct" },
+      { text: "id", tone: "fn" },
+      { text: " });", tone: "punct" },
+    ],
+  },
+  // + await sleep(2 ** i * 100);
+  {
+    tokens: [
+      { text: "await", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "sleep", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "2", tone: "num" },
+      { text: " ** ", tone: "muted" },
+      { text: "i", tone: "fn" },
+      { text: " * ", tone: "muted" },
+      { text: "100", tone: "num" },
+      { text: ");", tone: "punct" },
+    ],
+  },
+];
+
+function StaticDiffCard() {
   return (
-    <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-border bg-bg/50 px-3 py-2 font-mono text-[11px]">
-        <span className="h-2 w-2 rounded-full bg-border" />
-        <span className="h-2 w-2 rounded-full bg-border" />
-        <span className="h-2 w-2 rounded-full bg-border" />
-        <span className="ml-2 text-muted">pool.ts · diff</span>
+    <div
+      className="rounded-xl border border-border bg-surface shadow-card overflow-hidden max-w-xl"
+      data-testid="static-diff-card"
+    >
+      {/* Diff header. Matches the hero card's header so the two visuals
+          read as the same diff at two different sizes. */}
+      <div className="flex items-center justify-between border-b border-border bg-bg/40 px-4 py-2 font-mono text-[11px]">
+        <span className="text-muted">diff · retry loop</span>
+        <span className="text-diffEasy">+ 2</span>
       </div>
-      <div className="bg-bg px-4 py-3 text-[13px] leading-6 overflow-x-auto">
-        {poolOriginal.map((line, i) => (
-          <motion.div
-            key={`r-${i}`}
-            className="flex"
-            initial={{ opacity: 0, x: reduce ? 0 : -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.08 }
-                : { delay: 0.2 + i * 0.08, ...SPRING_GENTLE }
-            }
-          >
-            <span className="shrink-0 select-none w-6 text-diffImpossible/80 pr-6">
-              −
-            </span>
-            <span className="min-w-0 text-diffImpossible/80 line-through">
-              {line.tokens.map((tok, j) => (
-                <span key={j}>{tok.text}</span>
-              ))}
-            </span>
-          </motion.div>
-        ))}
-        {poolAdded.map((line, i) => (
-          <motion.div
-            key={`a-${i}`}
-            className="flex"
-            initial={{ opacity: 0, x: reduce ? 0 : 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.45 + i * 0.08 }
-                : { delay: 0.45 + i * 0.08, ...SPRING_GENTLE }
-            }
-          >
-            <span className="shrink-0 select-none w-6 text-diffEasy pr-6">
+      <div className="bg-bg px-4 py-2.5 font-mono text-[12px] leading-[1.65] overflow-x-auto">
+        {diffLines.map((line, i) => (
+          <div key={i} className="flex">
+            <span className="w-5 shrink-0 select-none pr-2 text-diffEasy">
               +
             </span>
-            <span className="min-w-0 text-text">
+            <span className="min-w-0 whitespace-pre">
               {line.tokens.map((tok, j) => (
-                <span
-                  key={j}
-                  className={
-                    tok.tone === "kw" ? "text-diffEasy" : "text-text"
-                  }
-                >
+                <span key={j} className={cls(tok.tone)}>
                   {tok.text}
                 </span>
               ))}
             </span>
-          </motion.div>
+          </div>
         ))}
-      </div>
-      <div className="flex items-center justify-between border-t border-border bg-bg/60 px-4 py-2 font-mono text-[11px] text-muted">
-        <span>
-          <span className="text-diffImpossible">− 2</span>
-          <span className="mx-2 text-border">·</span>
-          <span className="text-diffEasy">+ 5</span>
-        </span>
-        <span className="text-action">commit → run checks</span>
       </div>
     </div>
   );
 }
 
-function DischargeMock() {
-  const reduce = useReducedMotion();
+// ── StaticChecksCard (step 03) ────────────────────────────────────────────
+//
+// Static acceptance-checks card. Lists the 7 real names from
+// `acceptanceChecks` and shows the "first successful result is final" note
+// at the bottom. No animation, no score-locked pill — the hero already
+// shows the live "ticking in" version; this is the after-the-fact summary.
 
-  // Per-line reveal animation: each line fades in 80ms after the previous.
-  // Respects prefers-reduced-motion by skipping the stagger.
-  const lineVariants = {
-    hidden: { opacity: 0 },
-    show: (i: number) => ({
-      opacity: 1,
-      transition: {
-        delay: reduce ? 0 : 0.3 + i * 0.08,
-        duration: 0.18,
-      },
-    }),
-  };
-
-  // Check rows: stagger in from the right.
-  const checkVariants = (i: number) => ({
-    initial: { opacity: 0, x: reduce ? 0 : 30 },
-    whileInView: { opacity: 1, x: 0 },
-    viewport: { once: true, amount: 0.2 },
-    transition: reduce
-      ? { duration: 0.2, ease: "easeOut" as const, delay: 0.15 + i * 0.08 }
-      : { delay: 0.15 + i * 0.08, ...SPRING },
-  });
-
+function StaticChecksCard() {
   return (
-    <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border bg-bg/50 px-4 py-2 font-mono text-[11px]">
-        <span className="text-muted uppercase tracking-wider">
-          production checks
-        </span>
-        <span className="text-action">4 / 4 passing</span>
+    <div
+      className="rounded-xl border border-border bg-surface shadow-card overflow-hidden max-w-xl"
+      data-testid="static-checks-card"
+    >
+      <div className="border-b border-border bg-bg/30 px-4 py-3">
+        <div className="flex items-center justify-between font-mono text-[11px]">
+          <span className="uppercase tracking-wider text-muted">
+            acceptance checks
+          </span>
+          <span className="text-action">7 / 7 passing</span>
+        </div>
       </div>
-
-      {/* Check rows (no inner boxes — just rows) */}
-      <div className="px-5 py-4 space-y-1.5 font-mono text-[13px]">
-        {dischargeChecks.map((c, i) => (
-          <motion.div
+      <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-mono text-[11px]">
+        {acceptanceChecks.map((c) => (
+          <div
             key={c.label}
-            className="flex items-center gap-3"
-            {...checkVariants(i)}
+            className="flex items-center gap-2 rounded border border-border bg-surface/60 px-2 py-1.5 min-w-0"
           >
-            <span className="text-success">✓</span>
-            <span className="text-text flex-1">{c.label}</span>
-            <span className="text-muted">{c.value}</span>
-          </motion.div>
+            <span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40">
+              <Check size={9} />
+            </span>
+            <span className="text-text/85 min-w-0 break-words">{c.label}</span>
+          </div>
         ))}
       </div>
-
-      {/* Terminal output. */}
-      <div className="border-t border-border bg-bg px-5 py-4 overflow-x-auto">
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
-          className="font-mono text-[12.5px] leading-[1.7]"
-        >
-          {terminal.map((line, i) => (
-            <motion.div
-              key={i}
-              variants={lineVariants}
-              custom={i}
-              className={
-                line.tone === "accent"
-                  ? "text-action font-medium"
-                  : line.tone === "ok"
-                    ? "text-success"
-                    : line.tone === "text"
-                      ? "text-text"
-                      : "text-muted"
-              }
-            >
-              {line.text === "" ? " " : line.text}
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-border bg-bg/60 px-4 py-3 font-mono text-[12px]">
-        <span className="inline-flex h-6 items-center gap-1.5 rounded border border-action/40 bg-action/10 px-2 text-action">
-          <Check size={12} />
-          discharged
-        </span>
-        <span className="text-muted">18:42 · 14 lines changed</span>
+      <div className="border-t border-border px-4 py-2.5 font-mono text-[12px] text-muted">
+        first successful result is final
       </div>
     </div>
   );

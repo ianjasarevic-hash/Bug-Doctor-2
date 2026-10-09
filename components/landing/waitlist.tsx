@@ -48,7 +48,7 @@ export function Waitlist() {
     <section
       id="waitlist"
       aria-labelledby="waitlist-heading"
-      className="relative py-24 sm:py-32 divider-top cv-auto"
+      className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
@@ -74,7 +74,7 @@ export function Waitlist() {
             </h2>
             <p className="mt-4 text-muted text-lg leading-relaxed">
               bug.dr opens on October 21. The waitlist is how you get the link
-              before everyone else — and a heads-up the night before. Tell us
+              before everyone else, plus a heads-up the night before. Tell us
               why you&apos;d use it; that&apos;s how we shape what we ship.
             </p>
 
@@ -257,8 +257,23 @@ export function Waitlist() {
                     ? "thanks. we'll be in touch."
                     : status === "err"
                       ? "something went wrong. try again in a moment."
-                      : "no spam. one email when we open."}
+                      : "no spam. one email the night before, one when we open."}
                 </div>
+
+                {/* Privacy agreement. Plain text + inline link. Sits
+                    just under the submit button so it reads as the
+                    consent attached to the action, not a separate
+                    section. */}
+                <p className="mt-2 font-mono text-[11px] text-bg/80">
+                  By joining you agree to our{" "}
+                  <a
+                    href="/privacy"
+                    className="text-bg underline underline-offset-2 decoration-bg/40 hover:decoration-bg"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
               </div>
             </form>
           </motion.div>

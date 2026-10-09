@@ -8,28 +8,28 @@ import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 
 const faqs = [
   {
-    q: "Can't AI just solve these?",
-    a: "AI can pass the algorithm interview in 30 seconds. It can't read your codebase, reproduce your bug, ship a fix you trust, and prove it under load. The score is the signal, not the solution.",
+    q: "Is using AI allowed?",
+    a: "It's the point. Everyone has AI now. We measure how well you use it: correctness first, then code quality, verification, time and AI efficiency. Fewer tokens or fewer lines do not automatically score higher.",
   },
   {
     q: "Where do the problems come from?",
-    a: "Real GitHub bug reports (with the company's permission, anonymised) and generated scenarios that match real prod failure modes. New problems ship weekly.",
+    a: "Production-style scenarios drawn from common failure modes across web, data and infra stacks.",
   },
   {
     q: "What languages and stacks?",
-    a: "Node, Python, Go, Java, Postgres, MySQL, MongoDB, Redis, Kubernetes, Next.js, React. We're adding more as the library grows.",
+    a: "Node.js, TypeScript, Python, Go, React, Next.js, PostgreSQL, Redis, JWT, WebSocket. More are on the way as the library grows.",
   },
   {
     q: "Do I need to install anything?",
-    a: "No. bug.dr runs in the browser. Editor, terminal, live preview, and the test suite are all in-tab. Nothing to install.",
+    a: "No. bug.dr runs in the browser. Editor, terminal, AI assistant, and the test suite are all in-tab. Nothing to install.",
   },
   {
     q: "How is the score calculated?",
-    a: "Score = difficulty × time × diff size. A prod-ready percentage tells you how your fix holds up under load. Faster, smaller diffs on Hard problems score more.",
+    a: "Correctness and reliability weigh most, then code quality, verification, time and AI efficiency. Fewer tokens or fewer lines do not automatically score higher.",
   },
   {
     q: "When will bug.dr launch?",
-    a: "October 21, 2026. Join the waitlist and we'll email you the link the moment we go live — plus a heads-up the night before. If you're hiring and want early access for your team, mention that in the 'why you'd use it' field.",
+    a: "October 21, 2026. Join the waitlist and we will email you the link the moment we go live, plus a heads-up the night before. If you are hiring and want early access for your team, mention that in the 'why you'd use it' field.",
   },
 ];
 
@@ -45,7 +45,7 @@ export function Faq() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="relative py-24 sm:py-32 divider-top cv-auto"
+      className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
         <motion.div

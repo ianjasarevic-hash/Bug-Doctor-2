@@ -1,53 +1,52 @@
 "use client";
 
-import { motion, useMotionValue, useTransform, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { LinkButton } from "@/components/ui/button";
-import { CodeBlock, type Line } from "@/components/landing/code-block";
-import { ArrowRight, Check, Cross, Play } from "@/components/landing/icons";
+import { ArrowRight, Check } from "@/components/landing/icons";
+import { type Line, TONE_CLASS } from "@/components/landing/code-block";
 import { SPRING_GENTLE } from "@/lib/motion";
 
-// ── Hero IDE visual ──────────────────────────────────────────────────────
+// ── Hero ──────────────────────────────────────────────────────────────────
 //
-// Coherent pool-exhaustion case (matches How it works #3 incident).
-//   buggy line:    const client = await pool.connect();
-//   next:          return await client.query(sql, params);     ← no release
-//   diff:          wrap both in try { ... } finally { client.release() }
-//   checks:        2/4 failing → 4/4 passing
+// Frame: everyone uses AI now. Equal tools do not give equal results. bug.dr
+// measures how well an engineer uses AI to investigate a codebase, fix a bug
+// and verify it.
 //
-// The hero is full-viewport: min-h-[calc(100svh-2.5rem)] on lg+ so the
-// announcement bar (2.5rem) doesn't push it off the fold. The copy and IDE
-// flex-center vertically. On small screens the section is just a tall
-// normal-flow column — no `100vh` rule, otherwise the IDE would be cut.
+// Layout: text on the left (H1, subhead, buttons, meta, checklist) and the
+// animated IDE card on the right, on the same row at desktop. At mobile
+// widths the card drops below the CTAs and stacks under the text. The
+// workspace.png screenshot no longer lives here.
 
-const fileLines: Line[] = [
-  { tokens: [{ text: "import ", tone: "kw" }, { text: "{ Pool }", tone: "punct" }, { text: " from ", tone: "kw" }, { text: '"pg"', tone: "str" }, { text: ";", tone: "punct" }] },
-  { tokens: [] },
-  { tokens: [{ text: "const ", tone: "kw" }, { text: "pool", tone: "fn" }, { text: " = ", tone: "muted" }, { text: "new", tone: "kw" }, { text: " ", tone: "muted" }, { text: "Pool", tone: "fn" }, { text: "({", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "max", tone: "fn" }, { text: ": ", tone: "muted" }, { text: "20", tone: "num" }, { text: ",", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "idleTimeoutMillis", tone: "fn" }, { text: ": ", tone: "muted" }, { text: "10000", tone: "num" }, { text: ",", tone: "punct" }] },
-  { tokens: [{ text: "});", tone: "punct" }] },
-  { tokens: [] },
-  { tokens: [{ text: "export ", tone: "kw" }, { text: "async ", tone: "kw" }, { text: "function ", tone: "kw" }, { text: "query", tone: "fn" }, { text: "(sql, params) {", tone: "punct" }] },
-  // Line 9 — buggy: leaks the client on error (no try/finally)
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "const ", tone: "kw" }, { text: "client", tone: "fn" }, { text: " = ", tone: "muted" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "pool", tone: "fn" }, { text: ".connect();", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "return ", tone: "kw" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".query(sql, params);", tone: "punct" }] },
-  { tokens: [{ text: "}", tone: "punct" }] },
+const checklist = [
+  "Production-style incidents",
+  "AI assistant built into the workspace",
+  "Acceptance checks before you submit",
 ];
 
-// Diff of the fix — what the engineer ships.
-const diffLines: Line[] = [
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "const ", tone: "kw" }, { text: "client", tone: "fn" }, { text: " = ", tone: "muted" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "pool", tone: "fn" }, { text: ".connect();", tone: "punct" }] },
-  { tokens: [{ text: "  ", tone: "muted" }, { text: "try", tone: "kw" }, { text: " {", tone: "punct" }] },
-  { tokens: [{ text: "    ", tone: "muted" }, { text: "return ", tone: "kw" }, { text: "await", tone: "kw" }, { text: " ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".query(sql, params);", tone: "punct" }] },
-  { tokens: [{ text: "  } ", tone: "punct" }, { text: "finally", tone: "kw" }, { text: " {", tone: "punct" }] },
-  { tokens: [{ text: "    ", tone: "muted" }, { text: "client", tone: "fn" }, { text: ".release();", tone: "punct" }] },
-  { tokens: [{ text: "  }", tone: "punct" }] },
+// Real acceptance checks from the Payment retries problem. Exported so the
+// static "How it works" step 3 card can reuse the same seven names without
+// re-deriving the list.
+export const acceptanceChecks: { label: string }[] = [
+  { label: "Retry transient failures" },
+  { label: "Prevent duplicate charges" },
+  { label: "Back off between retries" },
+  { label: "Existing tests still pass" },
+  { label: "Preserve successful payments" },
+  { label: "Keep the worker healthy" },
+  { label: "Keep failed jobs visible in the queue" },
 ];
 
 export function Hero() {
   const reduce = useReducedMotion();
   return (
-    <section className="relative pt-8 pb-12 lg:pt-10 lg:pb-10 lg:min-h-[calc(100svh-2.5rem)] lg:flex lg:items-center">
+    <section className="relative pt-8 pb-12 lg:pt-6 lg:pb-10">
       {/* Radial glow (the page-wide grid is in the layout root) */}
       <div
         aria-hidden
@@ -58,14 +57,9 @@ export function Hero() {
         }}
       />
 
-      {/* Full-bleed layout: copy on the far left, IDE on the far right.
-          The Container (1200px max) is intentionally NOT used here — this
-          section spans the whole viewport on lg+. Other sections keep the
-          centered Container. */}
-      <div className="relative w-full px-6 md:px-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] gap-10 lg:gap-16 items-center">
-          {/* Copy — first-load choreography: every element from a different side */}
-          <div className="max-w-xl">
+      <div className="relative w-full px-6 md:px-10 max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          <div className="lg:col-span-5 max-w-3xl">
             <motion.h1
               className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-display"
               initial={reduce ? false : { opacity: 0, x: -50 }}
@@ -76,10 +70,10 @@ export function Hero() {
                   : { ...SPRING_GENTLE }
               }
             >
-              Interviews test puzzles.{" "}
+              Everyone has AI.{" "}
               <motion.span
                 className="text-muted inline-block text-glow-pulse"
-                data-glow="bug.dr tests the work that matters."
+                data-glow="Not everyone ships the fix."
                 initial={reduce ? false : { opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={
@@ -88,12 +82,12 @@ export function Hero() {
                     : { delay: 0.15, ...SPRING_GENTLE }
                 }
               >
-                bug.dr tests the work that matters.
+                Not everyone ships the fix.
               </motion.span>
             </motion.h1>
 
             <motion.p
-              className="mt-6 text-lg text-muted leading-relaxed"
+              className="mt-6 text-lg text-muted leading-relaxed max-w-2xl"
               initial={reduce ? false : { opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={
@@ -102,21 +96,13 @@ export function Hero() {
                   : { delay: 0.35, ...SPRING_GENTLE }
               }
             >
-              AI can pass the interview in 30 seconds. It can&apos;t read a
-              stack trace, find the leak, and ship the fix at 3am. bug.dr drops
-              you into a{" "}
-              <span
-                className="text-text font-medium text-glow-soft"
-                data-glow="real, broken production codebase"
-              >
-                real, broken production codebase
-              </span>
-              . You fix it.{" "}
+              bug.dr drops you into a real, broken production codebase with an AI
+              assistant in your editor. You investigate, fix and verify.{" "}
               <span
                 className="text-text font-medium"
-                data-glow="Automated production checks prove you did."
+                data-glow="We score how well you did it."
               >
-                Automated production checks prove you did.
+                We score how well you did it.
               </span>
             </motion.p>
 
@@ -130,7 +116,7 @@ export function Hero() {
                   : { delay: 0.5, ...SPRING_GENTLE }
               }
             >
-              <LinkButton href="#waitlist" size="lg" data-particle-target="#waitlist">
+              <LinkButton href="#waitlist" size="lg">
                 Join the waitlist
                 <ArrowRight size={16} />
               </LinkButton>
@@ -138,7 +124,6 @@ export function Hero() {
                 href="#how-it-works"
                 variant="secondary"
                 size="lg"
-                data-particle-target="#how-it-works"
               >
                 See how it works
               </LinkButton>
@@ -160,267 +145,466 @@ export function Hero() {
               <span aria-hidden className="h-3 w-px bg-border" />
               <span>your first patient is waiting</span>
             </motion.div>
+
+            <motion.ul
+              className="mt-8 space-y-2.5"
+              initial={reduce ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                reduce
+                  ? { duration: 0.2, ease: "easeOut" as const, delay: 0.8 }
+                  : { delay: 0.8, ...SPRING_GENTLE }
+              }
+            >
+              {checklist.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-2.5 text-[14px] text-text/90"
+                >
+                  <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40">
+                    <Check size={11} />
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </motion.ul>
           </div>
 
-          {/* IDE visual — slides in from the right on first load, then
-              responds to mouse on hover (existing 3D tilt). */}
-          <motion.div
-            className="w-full min-w-0"
-            initial={reduce ? false : { opacity: 0, x: 80, scale: 0.96 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 }
-                : { delay: 0.3, ...SPRING_GENTLE }
-            }
-          >
+          {/* Right column on desktop, full-width below the text on mobile.
+              The single animated card for the hero — also exported for any
+              other section that wants the same visual. */}
+          <div className="lg:col-span-7">
             <HeroIDE />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function HeroIDE() {
-  // Mouse-follow 3D tilt. The outer wrapper holds perspective; the inner
-  // element rotates with the cursor. Resets to flat on mouse leave.
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rotateY = useTransform(mx, [-0.5, 0.5], [-5, 5]);
-  const rotateX = useTransform(my, [-0.5, 0.5], [4, -4]);
+// ── HeroIDE ───────────────────────────────────────────────────────────────
+//
+// One animated card. Story: open a file → spot the line that's broken →
+// ask the AI for a fix → see the diff → watch the acceptance checks tick
+// in. Each section enters with a small stagger so the card reads top to
+// bottom rather than appearing all at once.
+//
+// 3D mouse-follow tilt: the card tilts toward the cursor as the user moves
+// it across the surface, then springs back to flat when the cursor leaves.
+// Honors prefers-reduced-motion (no tilt, all entrance animations become
+// short opacity fades).
+
+// payment-retry.ts — 11 lines, line 5 flagged (the for-loop that retries
+// without an idempotency key or backoff).
+const originalCode: Line[] = [
+  // 1: import { charge } from "./gateway";
+  {
+    tokens: [
+      { text: "import", tone: "kw" },
+      { text: " { ", tone: "muted" },
+      { text: "charge", tone: "fn" },
+      { text: " } ", tone: "muted" },
+      { text: "from", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: '"./gateway"', tone: "str" },
+      { text: ";", tone: "punct" },
+    ],
+  },
+  // 2: import { sleep } from "./utils";
+  {
+    tokens: [
+      { text: "import", tone: "kw" },
+      { text: " { ", tone: "muted" },
+      { text: "sleep", tone: "fn" },
+      { text: " } ", tone: "muted" },
+      { text: "from", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: '"./utils"', tone: "str" },
+      { text: ";", tone: "punct" },
+    ],
+  },
+  // 3: empty
+  { tokens: [{ text: "", tone: "muted" }] },
+  // 4: export async function processOrder(order) {
+  {
+    tokens: [
+      { text: "export", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "async", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "function", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "processOrder", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ") {", tone: "punct" },
+    ],
+  },
+  // 5:   for (let i = 0; i < 3; i++) {  ← FLAGGED
+  {
+    tokens: [
+      { text: "  ", tone: "muted" },
+      { text: "for", tone: "kw" },
+      { text: " (", tone: "muted" },
+      { text: "let", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "i", tone: "fn" },
+      { text: " = ", tone: "muted" },
+      { text: "0", tone: "num" },
+      { text: "; ", tone: "punct" },
+      { text: "i", tone: "fn" },
+      { text: " < ", tone: "muted" },
+      { text: "3", tone: "num" },
+      { text: "; ", tone: "punct" },
+      { text: "i", tone: "fn" },
+      { text: "++) {", tone: "punct" },
+    ],
+  },
+  // 6:     const result = await charge(order);
+  {
+    tokens: [
+      { text: "    ", tone: "muted" },
+      { text: "const", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "result", tone: "fn" },
+      { text: " = ", tone: "muted" },
+      { text: "await", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "charge", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ");", tone: "punct" },
+    ],
+  },
+  // 7:     if (result.ok) return result;
+  {
+    tokens: [
+      { text: "    ", tone: "muted" },
+      { text: "if", tone: "kw" },
+      { text: " (", tone: "muted" },
+      { text: "result", tone: "fn" },
+      { text: ".", tone: "punct" },
+      { text: "ok", tone: "fn" },
+      { text: ") ", tone: "muted" },
+      { text: "return", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "result", tone: "fn" },
+      { text: ";", tone: "punct" },
+    ],
+  },
+  // 8:   }
+  { tokens: [{ text: "  }", tone: "punct" }] },
+  // 9:   throw new Error("payment failed");
+  {
+    tokens: [
+      { text: "  ", tone: "muted" },
+      { text: "throw", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "new", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "Error", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: '"payment failed"', tone: "str" },
+      { text: ");", tone: "punct" },
+    ],
+  },
+  // 10: }
+  { tokens: [{ text: "}", tone: "punct" }] },
+  // 11: empty
+  { tokens: [{ text: "", tone: "muted" }] },
+];
+
+// The diff — the two changes the user ships to fix the flagged line.
+//   - Pass an idempotency key derived from order.id so retries can't
+//     double-charge.
+//   - Sleep with exponential backoff (2 ** i * 100 ms) after a failed
+//     attempt before the next try.
+// Both lines are placed inside the for-loop on line 5, after the success
+// check on line 7, so `i` is already in scope and `order` is the function
+// parameter. Nothing resets between calls because the fix relies on
+// server-side idempotency (the `idempotencyKey` argument) rather than
+// in-process state like a `Set`.
+const addedCode: Line[] = [
+  // + const result = await charge(order, { idempotencyKey: order.id });
+  {
+    tokens: [
+      { text: "const", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "result", tone: "fn" },
+      { text: " = ", tone: "muted" },
+      { text: "await", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "charge", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ", ", tone: "punct" },
+      { text: "{", tone: "punct" },
+      { text: " ", tone: "muted" },
+      { text: "idempotencyKey", tone: "fn" },
+      { text: ": ", tone: "punct" },
+      { text: "order", tone: "fn" },
+      { text: ".", tone: "punct" },
+      { text: "id", tone: "fn" },
+      { text: " });", tone: "punct" },
+    ],
+  },
+  // + await sleep(2 ** i * 100);
+  {
+    tokens: [
+      { text: "await", tone: "kw" },
+      { text: " ", tone: "muted" },
+      { text: "sleep", tone: "fn" },
+      { text: "(", tone: "punct" },
+      { text: "2", tone: "num" },
+      { text: " ** ", tone: "muted" },
+      { text: "i", tone: "fn" },
+      { text: " * ", tone: "muted" },
+      { text: "100", tone: "num" },
+      { text: ");", tone: "punct" },
+    ],
+  },
+];
+
+// Helper: token tone -> Tailwind class. Falls back to body text.
+function cls(tone: Line["tokens"][number]["tone"]): string {
+  return TONE_CLASS[tone ?? "muted"] ?? "text-text";
+}
+
+export function HeroIDE() {
+  const reduce = useReducedMotion();
+  // Test id so the verification script can find this card without parsing
+  // its content. Not user-facing.
+  const testId = "hero-ide-card";
+
+  // Shared spring used everywhere; reduced-motion gets a plain fade.
+  const spring = (delay: number, extra?: object) =>
+    reduce
+      ? { duration: 0.2, ease: "easeOut" as const, delay }
+      : { delay, ...SPRING_GENTLE, ...extra };
+
+  // ── 3D mouse-follow tilt ───────────────────────────────────────────────
+  // Track the cursor as a fraction of the card (-1…1 on each axis), feed
+  // it through a soft spring so the motion feels like the card is being
+  // physically pushed, and map to a small rotation (±8°). The card is the
+  // outer motion.div; the inner content does its own entrance animations
+  // in the card's local frame, so the tilt composes cleanly with them.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  // Soft spring — quick enough to feel responsive, smooth enough to
+  // avoid jitter when the mouse is moved fast across the card.
+  const smoothX = useSpring(mouseX, { stiffness: 150, damping: 20, mass: 0.5 });
+  const smoothY = useSpring(mouseY, { stiffness: 150, damping: 20, mass: 0.5 });
+  const rotateY = useTransform(smoothX, [-1, 1], [-8, 8]);
+  const rotateX = useTransform(smoothY, [-1, 1], [8, -8]);
 
   function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - rect.left) / rect.width - 0.5);
-    my.set((e.clientY - rect.top) / rect.height - 0.5);
+    if (reduce) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    // Normalise to -1…1 with the card centre at 0.
+    mouseX.set(((e.clientX - rect.left) / rect.width) * 2 - 1);
+    mouseY.set(((e.clientY - rect.top) / rect.height) * 2 - 1);
   }
   function onMouseLeave() {
-    mx.set(0);
-    my.set(0);
+    // Snap back to flat when the cursor leaves the card.
+    mouseX.set(0);
+    mouseY.set(0);
   }
 
   return (
-    <div
-      className="relative"
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{ perspective: 1200 }}
-    >
+    <div style={{ perspective: 1000 }} data-testid={testId}>
       <motion.div
+        ref={cardRef}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        className="rounded-xl border border-border bg-surface shadow-card overflow-hidden"
         style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-          transition: "transform 0.15s ease-out",
+          rotateX: reduce ? 0 : rotateX,
+          rotateY: reduce ? 0 : rotateY,
+          willChange: "transform",
         }}
-        className="relative"
       >
-        {/* soft glow */}
-        <div
-          aria-hidden
-          className="absolute -inset-6 rounded-2xl blur-2xl opacity-40"
-          style={{
-            background:
-              "radial-gradient(closest-side, rgba(139,172,255,0.25), transparent 70%)",
-          }}
-        />
-
-        <div className="relative rounded-xl bg-surface overflow-hidden shadow-card">
-          {/* Title bar */}
-          <div className="flex items-center justify-between border-b border-border bg-bg/50 px-3 py-2">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-border" />
-              <span className="h-2.5 w-2.5 rounded-full bg-border" />
-              <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            </div>
-            <div className="font-mono text-[11px] text-muted truncate px-2">
-              pool.ts · oncall/checkout-pool
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-muted font-mono">
-              <Play size={11} />
-              <span>run</span>
-            </div>
+        {/* Window chrome: 3 traffic-light dots, "example incident" in the
+            centre, "▶ run" affordance on the right. */}
+        <motion.div
+          className="flex items-center justify-between border-b border-border bg-bg/50 px-3 py-2 font-mono text-[11px]"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={spring(0)}
+        >
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-border" />
+            <span className="h-2 w-2 rounded-full bg-border" />
+            <span className="h-2 w-2 rounded-full bg-border" />
           </div>
+          <span className="text-muted">example incident</span>
+          <span className="text-action">▶ run</span>
+        </motion.div>
 
-          {/* File tabs */}
-          <div className="flex items-center gap-1 border-b border-border bg-bg/40 px-2 py-1.5 text-[11px] font-mono">
-            <span className="rounded px-2 py-1 bg-surface text-text border border-border">
-              pool.ts
-            </span>
-            <span className="rounded px-2 py-1 text-muted">incident.md</span>
-            <span className="rounded px-2 py-1 text-muted">checks.ts</span>
-          </div>
+        {/* File tabs. Active tab is raised; the other two are flat. */}
+        <motion.div
+          className="flex items-center gap-1 border-b border-border bg-bg/30 px-3 py-1.5 font-mono text-[11px]"
+          initial={reduce ? false : { opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={spring(0.1)}
+        >
+          <span className="rounded bg-surface px-2.5 py-0.5 text-text">
+            payment-retry.ts
+          </span>
+          <span className="px-2.5 py-0.5 text-muted">incident.md</span>
+          <span className="px-2.5 py-0.5 text-muted">ai</span>
+        </motion.div>
 
-          {/* Code editor — buggy pool.ts */}
-          <div className="bg-bg px-4 py-3 text-[13px] leading-6 overflow-x-auto">
-            <CodeBlock lines={fileLines} />
-          </div>
-
-          {/* Buggy line annotation */}
-          <div className="flex items-center justify-between border-t border-border bg-[#1a1c20] px-4 py-2 text-[11px] font-mono">
-            <div className="flex items-center gap-2 text-muted">
-              <motion.span
-                className="inline-flex h-4 w-6 items-center justify-center rounded-sm bg-text text-action"
-                animate={{ scale: [1, 1.08, 1] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        {/* Code editor: 11 lines with line numbers, line 5 highlighted as
+            the offending line. Lines slide in from the left with a small
+            stagger so the file "loads" line by line. */}
+        <div className="bg-bg px-4 py-2.5 font-mono text-[12px] leading-[1.65] overflow-x-auto">
+          {originalCode.map((line, i) => {
+            const isFlagged = i === 4; // 0-indexed → line 5
+            return (
+              <motion.div
+                key={`o-${i}`}
+                className={
+                  isFlagged
+                    ? "flex -mx-4 px-4 bg-[#1a1c20] border-l-2 border-text"
+                    : "flex"
+                }
+                initial={reduce ? false : { opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={spring(0.2 + i * 0.04)}
               >
-                <Cross size={11} />
-              </motion.span>
-              <span>
-                line <span className="text-text">9</span>:{" "}
-                <span className="text-muted">client never released on error</span>
+                <span className="w-7 shrink-0 select-none text-right pr-3 text-muted/40">
+                  {i + 1}
+                </span>
+                <span className="min-w-0 whitespace-pre">
+                  {line.tokens.map((tok, j) => (
+                    <span key={j} className={cls(tok.tone)}>
+                      {tok.text}
+                    </span>
+                  ))}
+                </span>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Error annotation: "× line 5: no idempotency key, retry can
+            double-charge" on the left, "→ ship the fix" on the right. */}
+        <motion.div
+          className="flex items-center justify-between gap-3 border-t border-border bg-bg/60 px-4 py-2 font-mono text-[11px]"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={spring(0.7)}
+        >
+          <span className="flex items-center gap-2 min-w-0">
+            <span className="text-diffImpossible shrink-0">×</span>
+            <span className="text-muted truncate">
+              line 5: no idempotency key, retry can double-charge
+            </span>
+          </span>
+          <span className="text-action shrink-0">→ ship the fix</span>
+        </motion.div>
+
+        {/* AI prompt line — the user asked the assistant for a fix. Sits
+            above the diff so the diff reads as the AI's answer. */}
+        <motion.div
+          className="flex items-center justify-between gap-3 border-t border-border bg-bg/40 px-4 py-2 font-mono text-[11px]"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={spring(0.85)}
+        >
+          <span className="flex items-center gap-2 min-w-0">
+            <span className="text-action shrink-0">ask ai</span>
+            <span className="text-muted/70" aria-hidden>·</span>
+            <span className="text-text/90 truncate">
+              fix duplicate charge on retry, add backoff
+            </span>
+          </span>
+          <span className="text-muted shrink-0">↩</span>
+        </motion.div>
+
+        {/* Diff header: "diff · retry loop" on the left, line counter
+            ("+ 2") on the right. */}
+        <motion.div
+          className="flex items-center justify-between border-t border-border bg-bg/40 px-4 py-2 font-mono text-[11px]"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={spring(1.0)}
+        >
+          <span className="text-muted">diff · retry loop</span>
+          <span className="text-diffEasy">+ 2</span>
+        </motion.div>
+
+        {/* Diff body: 2 added lines. They drop into the for-loop on line 5
+            after the success check on line 7, so `i` is in scope and
+            `order` is the function parameter. */}
+        <div className="bg-bg px-4 py-2.5 font-mono text-[12px] leading-[1.65] overflow-x-auto">
+          {addedCode.map((line, i) => (
+            <motion.div
+              key={`a-${i}`}
+              className="flex"
+              initial={reduce ? false : { opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={spring(1.1 + i * 0.05)}
+            >
+              <span className="w-5 shrink-0 select-none pr-2 text-diffEasy">
+                +
               </span>
-            </div>
+              <span className="min-w-0 whitespace-pre">
+                {line.tokens.map((tok, j) => (
+                  <span key={j} className={cls(tok.tone)}>
+                    {tok.text}
+                  </span>
+                ))}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Acceptance checks panel. The 7 rows slide in one by one (the
+            "ticking" effect) and the "7 / 7 passing" counter appears once
+            the last row has settled. */}
+        <motion.div
+          className="border-t border-border bg-bg/30 px-4 py-3"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={spring(1.4)}
+        >
+          <div className="flex items-center justify-between font-mono text-[11px]">
+            <span className="uppercase tracking-wider text-muted">
+              acceptance checks
+            </span>
             <motion.span
               className="text-action"
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={spring(1.5 + acceptanceChecks.length * 0.08)}
             >
-              → ship the fix
+              7 / 7 passing
             </motion.span>
           </div>
-
-          {/* Diff — what gets shipped */}
-          <div className="border-t border-border">
-            <div className="flex items-center justify-between px-4 py-2 font-mono text-[11px] text-muted border-b border-border bg-bg/40">
-              <span>diff · try/finally</span>
-              <span className="text-diffEasy">+ 6</span>
-            </div>
-            <div className="bg-bg px-4 py-2 text-[12.5px] leading-5 overflow-x-auto">
-              <DiffBlock lines={diffLines} />
-            </div>
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-mono text-[11px]">
+            {acceptanceChecks.map((check, i) => (
+              <motion.div
+                key={check.label}
+                className="flex items-center gap-2 rounded border border-border bg-surface/60 px-2 py-1.5 min-w-0"
+                initial={reduce ? false : { opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={spring(1.5 + i * 0.08)}
+              >
+                <span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40">
+                  <Check size={9} />
+                </span>
+                <span className="text-text/85 min-w-0 break-words">
+                  {check.label}
+                </span>
+              </motion.div>
+            ))}
           </div>
-
-          {/* Checks panel — animates 2/4 failing → 4/4 passing */}
-          <ChecksPanel />
-        </div>
+        </motion.div>
       </motion.div>
     </div>
-  );
-}
-
-function DiffBlock({ lines }: { lines: Line[] }) {
-  return (
-    <pre
-      className="font-mono whitespace-pre"
-      style={{
-        fontVariantLigatures: "none",
-        fontFeatureSettings: '"liga" 0, "calt" 0',
-      }}
-    >
-      {lines.map((line, i) => (
-        <div key={i} className="flex">
-          <span className="select-none shrink-0 w-6 text-diffEasy pl-1">
-            +
-          </span>
-          <span className="min-w-0">
-            {line.tokens.length === 0 ? (
-              <span> </span>
-            ) : (
-              line.tokens.map((tok, j) => (
-                <span
-                  key={j}
-                  className={
-                    tok.tone === "kw"
-                      ? "text-diffEasy"
-                      : tok.tone === "fn"
-                        ? "text-text"
-                        : tok.tone === "num"
-                          ? "text-diffEasy"
-                          : "text-text"
-                  }
-                >
-                  {tok.text}
-                </span>
-              ))
-            )}
-          </span>
-        </div>
-      ))}
-    </pre>
-  );
-}
-
-function ChecksPanel() {
-  // Before the fix: 2 of these would be failing (pool size, leak rate).
-  // After the fix: all 4 pass. We animate the row glyphs in to convey
-  // the flip; the header counter swaps from "2/4 passing" to "4/4 passing".
-  const checks: { label: string; passAt: number }[] = [
-    { label: "p99 latency < 300ms @ 500 rps", passAt: 0.6 },
-    { label: "test suite green", passAt: 0.9 },
-    { label: "pool size never exceeds 20", passAt: 1.5 },
-    { label: "no connection leak under load", passAt: 1.8 },
-  ];
-
-  return (
-    <div className="border-t border-border bg-surface px-4 py-3">
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
-          production checks
-        </span>
-        <ChecksCounter />
-      </div>
-      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {checks.map((c) => (
-          <CheckRow key={c.label} label={c.label} passAt={c.passAt} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ChecksCounter() {
-  // When the OS asks for less motion, skip the "2/4 passing → 4/4 passing"
-  // crossfade and render only the final state. The flip still happens
-  // instantly because the underlying logic is unchanged.
-  const reduce = useReducedMotion();
-  if (reduce) {
-    return (
-      <span className="relative inline-block font-mono text-[11px] text-action min-w-[90px] text-right">
-        4 / 4 passing
-      </span>
-    );
-  }
-  return (
-    <span className="relative inline-block font-mono text-[11px] text-action min-w-[90px] text-right">
-      <motion.span
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ delay: 1.4, duration: 0.3 }}
-        className="absolute right-0 top-0"
-      >
-        2 / 4 passing
-      </motion.span>
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.3 }}
-      >
-        4 / 4 passing
-      </motion.span>
-    </span>
-  );
-}
-
-function CheckRow({ label, passAt }: { label: string; passAt: number }) {
-  // Pass at the delay, otherwise stays failing.
-  return (
-    <motion.div
-      initial={{ opacity: 0.4 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: passAt, duration: 0.3 }}
-      className="flex items-center gap-2 rounded border border-border bg-bg/50 px-2.5 py-1.5 text-[12px] font-mono"
-    >
-      <motion.span
-        initial={{ scale: 0.6, opacity: 0.4 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: passAt + 0.1, duration: 0.3 }}
-        className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40"
-      >
-        <Check size={11} />
-      </motion.span>
-      <span className="text-text truncate">{label}</span>
-    </motion.div>
   );
 }

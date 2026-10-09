@@ -17,29 +17,30 @@ const rows: Row[] = [
   {
     label: "What it tests",
     interview: "An isolated algorithm puzzle.",
-    bugdr: "A real, broken production codebase.",
+    bugdr: "A broken production-style codebase.",
   },
   {
-    label: "Solvable by AI",
-    interview: "Yes — in 30 seconds.",
-    bugdr: "No. You need the actual prod system.",
+    label: "AI",
+    interview: "Banned, or solved in seconds.",
+    bugdr: "Built in. Use it like you would at work.",
     interviewTone: "danger",
     bugdrTone: "action",
   },
   {
-    label: "Codebase size",
-    interview: "1 function, ~20 lines.",
-    bugdr: "1–50k lines of real code, with tests, infra, traces.",
+    label: "What gets measured",
+    interview: "Whether the output matches.",
+    bugdr:
+      "Correctness, code quality, verification, time and AI usage.",
   },
   {
-    label: "Verifies your fix",
+    label: "How the fix is verified",
     interview: "Output equals the spec.",
-    bugdr: "p99, pool size, leak rate, test suite green under load.",
+    bugdr: "Acceptance checks, listed upfront.",
   },
   {
     label: "What it proves",
-    interview: "You can do algebra under timed conditions.",
-    bugdr: "You can be trusted with prod at 3am.",
+    interview: "You can do algebra under time pressure.",
+    bugdr: "You can deliver a reliable fix with AI.",
     bugdrTone: "action",
   },
 ];
@@ -77,11 +78,12 @@ export function Comparison() {
             id="comparison-heading"
             className="mt-3 text-3xl sm:text-4xl font-semibold text-headline"
           >
-            The interview tests the wrong thing.
+            Interviews can&apos;t see how you work with AI.
           </h2>
           <p className="mt-4 text-muted text-lg leading-relaxed">
-            AI can pass it. The interview stopped measuring what matters —
-            whether you can ship under pressure on a real codebase.
+            An algorithm puzzle in 45 minutes tells you almost nothing about
+            how someone uses AI on a real codebase. We test the work that
+            matters.
           </p>
         </motion.div>
 

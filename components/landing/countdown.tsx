@@ -15,24 +15,43 @@ function diffParts(target: number) {
   return { days, hours, minutes };
 }
 
+// Hydration-safe state shape. The first render (SSR + client's hydration
+// pass before useEffect fires) reads from this, so the markup is byte-
+// identical on both sides regardless of when the server stamped the HTML
+// or when the client hydrated. Real values land after mount via useEffect.
+type Parts = { days: string; hours: string; minutes: string } | null;
+
 export function Countdown() {
-  const [{ days, hours, minutes }, setT] = useState(() => diffParts(LAUNCH_AT));
+  const [parts, setParts] = useState<Parts>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setT(diffParts(LAUNCH_AT)), 60_000);
+    const update = () => {
+      const p = diffParts(LAUNCH_AT);
+      setParts({
+        days: String(p.days),
+        hours: String(p.hours).padStart(2, "0"),
+        minutes: String(p.minutes).padStart(2, "0"),
+      });
+    };
+    update();
+    const id = setInterval(update, 60_000);
     return () => clearInterval(id);
   }, []);
+
+  const days = parts?.days ?? "--";
+  const hours = parts?.hours ?? "--";
+  const minutes = parts?.minutes ?? "--";
 
   return (
     <span className="tabular-nums">
       <span className="text-text font-medium">{days}</span>
       <span className="text-muted"> days, </span>
       <span className="text-text font-medium">
-        {String(hours).padStart(2, "0")}h
+        {hours}h
       </span>
       <span className="text-muted"> </span>
       <span className="text-text font-medium">
-        {String(minutes).padStart(2, "0")}m
+        {minutes}m
       </span>
     </span>
   );

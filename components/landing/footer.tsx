@@ -1,82 +1,39 @@
 import Link from "next/link";
 import { Container } from "@/components/landing/container";
+import { OperatorLine } from "@/components/landing/operator-line";
 
-const cols = [
-  {
-    title: "Product",
-    links: [
-      { href: "#library", label: "Problems" },
-      { href: "#how-it-works", label: "How it works" },
-      { href: "#faq", label: "FAQ" },
-    ],
-  },
-  {
-    title: "Stay in touch",
-    links: [
-      { href: "#waitlist", label: "Join the waitlist" },
-      { href: "#waitlist", label: "Updates" },
-      { href: "mailto:hi@bug.dr", label: "Contact" },
-    ],
-  },
+// Minimal footer. The operator / contact line is rendered by
+// OperatorLine (which also handles the mailto link and the
+// optional registration id). Copyright and Privacy / Terms links
+// sit on a second row. Used on the home page and on the legal
+// pages — on mobile the nav links collapse, so this footer is the
+// only way users reach Privacy and Terms.
+
+const legalLinks = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
 ];
 
 export function Footer() {
   return (
     <footer className="border-t border-border bg-surface/30">
       <Container>
-        <div className="py-16">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            <div className="col-span-2 md:col-span-3">
-              <img
-                src="logos/primary-lockup.png"
-                alt="bug.dr"
-                width={108}
-                height={28}
-                className="h-7 w-auto"
-              />
-              <p className="mt-4 text-sm text-muted leading-relaxed max-w-sm">
-                bug.dr proves you can fix production bugs. Not puzzles. Prod.
-              </p>
-              <p className="mt-6 font-mono text-[11px] text-muted">
-                pre-launch · joining the waitlist is free
-              </p>
-            </div>
-
-            {cols.map((col) => (
-              <div key={col.title}>
-                <div className="font-mono text-xs uppercase tracking-widest text-muted">
-                  {col.title}
-                </div>
-                <ul className="mt-4 space-y-2.5 text-sm">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <Link
-                        href={l.href}
-                        className="text-muted hover:text-text transition-colors"
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-14 pt-6 border-t border-border flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+        <div className="py-10 flex flex-col gap-4">
+          <OperatorLine />
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <p className="font-mono text-[11px] text-muted">
               © 2026 bug.dr · all rights reserved
             </p>
-            <div className="flex gap-6 font-mono text-[11px] text-muted">
-              <Link href="#terms" className="hover:text-text transition-colors">
-                Terms
-              </Link>
-              <Link href="#privacy" className="hover:text-text transition-colors">
-                Privacy
-              </Link>
-              <Link href="#status" className="hover:text-text transition-colors">
-                Status
-              </Link>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[11px] text-muted">
+              {legalLinks.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="hover:text-text transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

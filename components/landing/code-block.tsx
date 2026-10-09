@@ -22,7 +22,9 @@ type Tone =
   | "lineno" // gutter line numbers
   | "gutter-marker"; // + / − gutter icons in diffs
 
-const TONE_CLASS: Record<Tone, string> = {
+// Exported so other components (e.g. the hero IDE) can render token-coloured
+// spans without re-deriving the palette.
+export const TONE_CLASS: Record<Tone, string> = {
   kw: "text-action",
   fn: "text-text",
   str: "text-text",
