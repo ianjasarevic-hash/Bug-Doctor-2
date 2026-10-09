@@ -1,10 +1,16 @@
-"use client";
-
-import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
-import { SPRING_GENTLE } from "@/lib/motion";
+
+// "Pick a role. Show your work." section.
+//
+// Six role chips on the left, profile screenshot on the right. Earlier
+// versions used framer-motion's `whileInView` to slide each chip in from
+// a different side. On the static export the SSR HTML rendered the
+// chips at `opacity:0` with a translate, and the IntersectionObserver
+// only fired for chips that were actually in the viewport. Off-screen
+// chips stayed invisible in fullPage screenshots, for crawlers, and for
+// anyone trying to print the page. The fix: render plain HTML. The
+// content is always visible.
 
 const roles = [
   {
@@ -39,19 +45,7 @@ const roles = [
   },
 ];
 
-// Per-chip entry direction so the 3x2 grid "puzzles" into place from
-// every side as the section scrolls into view.
-const chipFrom: ("left" | "right" | "top" | "bottom")[] = [
-  "left",
-  "top",
-  "right",
-  "left",
-  "right",
-  "bottom",
-];
-
 export function RolesAndProfile() {
-  const reduce = useReducedMotion();
   return (
     <section
       id="profile"
@@ -59,17 +53,7 @@ export function RolesAndProfile() {
       className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
-        <motion.div
-          className="max-w-2xl"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const }
-              : { ...SPRING_GENTLE }
-          }
-        >
+        <div className="max-w-2xl">
           <h2
             id="profile-heading"
             className="text-2xl sm:text-3xl font-semibold text-headline"
@@ -80,18 +64,26 @@ export function RolesAndProfile() {
             Six roles, four levels. Every problem is graded against the same
             acceptance checks, so your score means the same thing across roles.
           </p>
-        </motion.div>
+        </div>
 
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          {/* Left: 3×2 role chips */}
+          {/* Left: 3x2 role chips */}
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {roles.map((r, i) => (
-              <RoleChip
+            {roles.map((r) => (
+              <div
                 key={r.name}
-                role={r}
-                from={chipFrom[i]}
-                delay={i * 0.07}
-              />
+                className="rounded-lg border border-border bg-surface p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[11px] text-action border border-action/40 bg-action/10 rounded px-1.5 py-0.5">
+                    {r.icon}
+                  </span>
+                  <span className="text-sm font-medium">{r.name}</span>
+                </div>
+                <div className="mt-2 text-[12px] text-text/90 leading-snug">
+                  {r.example}
+                </div>
+              </div>
             ))}
           </div>
 
@@ -103,67 +95,13 @@ export function RolesAndProfile() {
   );
 }
 
-function RoleChip({
-  role,
-  from,
-  delay,
-}: {
-  role: (typeof roles)[number];
-  from: "left" | "right" | "top" | "bottom";
-  delay: number;
-}) {
-  const reduce = useReducedMotion();
-  const off =
-    from === "left"
-      ? { x: -40, y: 0 }
-      : from === "right"
-        ? { x: 40, y: 0 }
-        : from === "top"
-          ? { x: 0, y: -30 }
-          : { x: 0, y: 30 };
-  return (
-    <motion.div
-      className="rounded-lg border border-border bg-surface p-4"
-      initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const, delay }
-          : { delay, ...SPRING_GENTLE }
-      }
-    >
-      <div className="flex items-center gap-2">
-        <span className="font-mono text-[11px] text-action border border-action/40 bg-action/10 rounded px-1.5 py-0.5">
-          {role.icon}
-        </span>
-        <span className="text-sm font-medium">{role.name}</span>
-      </div>
-      <div className="mt-2 text-[12px] text-text/90 leading-snug">
-        {role.example}
-      </div>
-    </motion.div>
-  );
-}
-
 function ProfileShot() {
   // Real product screenshot for the profile feature: points, level,
   // streak, twelve-month activity grid, solved problems. The numbers in
   // the image (Max, 147, 12,840, 18 days) are sample data; we do not
   // repeat them in the site copy.
-  const reduce = useReducedMotion();
   return (
-    <motion.figure
-      className="lg:col-span-5 rounded-xl border border-border bg-surface shadow-card overflow-hidden"
-      initial={reduce ? false : { opacity: 0, x: 60, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const }
-          : { ...SPRING_GENTLE }
-      }
-    >
+    <figure className="lg:col-span-5 rounded-xl border border-border bg-surface shadow-card overflow-hidden">
       <ZoomableImage
         src="screenshots/profile.png"
         alt="bug.dr profile page showing points, current level, current streak, a twelve-month activity grid and a list of solved problems."
@@ -174,6 +112,6 @@ function ProfileShot() {
       <figcaption className="border-t border-border bg-bg/40 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-muted">
         Sample profile
       </figcaption>
-    </motion.figure>
+    </figure>
   );
 }

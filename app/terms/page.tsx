@@ -196,9 +196,8 @@ const sections: LegalSection[] = [
       <>
         <p>
           You can stop using bug.dr at any time and delete your account
-          from your account settings [CONFIRM that this feature
-          exists]. How long we keep your data after deletion is
-          explained in the{" "}
+          from your account settings. How long we keep your data after
+          deletion is explained in the{" "}
           <a href="/privacy/#how-long-we-keep-it">Privacy Policy</a>.
         </p>
         <p>

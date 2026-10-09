@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { Button } from "@/components/ui/button";
 import { joinWaitlist } from "@/lib/supabase";
-import { SPRING, SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
 
-// Motion-wrapped Button so we can attach the pulse / hover-pop animations
-// without forking the Button component itself.
-const MotionButton = motion.create(Button);
+// "Be there day one" — the waitlist section.
+//
+// Earlier versions used framer-motion's `whileInView` to slide the
+// copy block and the form card in from opposite sides, and a continuous
+// "pop" animation on the submit button. On the static export the SSR
+// HTML rendered them at `opacity:0` with a translate, and the
+// IntersectionObserver only fired for content that was actually in the
+// viewport. Off-screen content stayed invisible in fullPage screenshots,
+// for crawlers, and for anyone trying to print the page. The fix:
+// render plain HTML. The content is always visible.
 
 const WAITLIST_COUNT: number | null = null;
 
@@ -27,7 +32,6 @@ export function Waitlist() {
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">(
     "idle",
   );
-  const reduce = useReducedMotion();
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,17 +56,7 @@ export function Waitlist() {
     >
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          <motion.div
-            className="lg:col-span-7"
-            initial={{ opacity: 0, x: reduce ? 0 : -60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const }
-                : { ...SPRING_GENTLE }
-            }
-          >
+          <div className="lg:col-span-7">
             <p className="font-mono text-xs uppercase tracking-widest text-action">
               Launching · October 21
             </p>
@@ -79,47 +73,22 @@ export function Waitlist() {
             </p>
 
             <ul className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              {reasons.map((x, i) => {
-                const xDir = i % 2 === 0 ? -20 : 20;
-                return (
-                  <motion.li
-                    key={x}
-                    className="flex items-start gap-2 font-mono text-[13px] text-muted"
-                    initial={{ opacity: 0, x: reduce ? 0 : xDir }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={
-                      reduce
-                        ? { duration: 0.2, ease: "easeOut" as const, delay: 0.2 + i * 0.08 }
-                        : { delay: 0.2 + i * 0.08, ...SPRING }
-                    }
-                  >
-                    <motion.span
-                      aria-hidden
-                      className="mt-2 h-1.5 w-1.5 rounded-full bg-action shrink-0"
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      viewport={{ once: true, amount: 0.3 }}
-                      transition={
-                        reduce
-                          ? { duration: 0.2, ease: "easeOut" as const, delay: 0.3 + i * 0.08 }
-                          : { delay: 0.3 + i * 0.08, ...SPRING_SNAPPY }
-                      }
-                    />
-                    <span>{x}</span>
-                  </motion.li>
-                );
-              })}
+              {reasons.map((x) => (
+                <li
+                  key={x}
+                  className="flex items-start gap-2 font-mono text-[13px] text-muted"
+                >
+                  <span
+                    aria-hidden
+                    className="mt-2 h-1.5 w-1.5 rounded-full bg-action shrink-0"
+                  />
+                  <span>{x}</span>
+                </li>
+              ))}
             </ul>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="lg:col-span-5"
-            initial={{ opacity: 0, x: reduce ? 0 : 60 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div className="lg:col-span-5">
             {/* Bright blue card — same look the old FinalCta had, now
                 doing real work (writing to Supabase). Faint grid overlay
                 sits behind the form for texture, like the FinalCta did. */}
@@ -206,45 +175,18 @@ export function Waitlist() {
                   />
                 </div>
 
-                <MotionButton
+                <Button
                   type="submit"
                   size="md"
                   className="mt-6 w-full !bg-bg !text-action hover:!bg-surface"
                   disabled={status === "sending" || status === "ok"}
-                  // Continuous pop — only when idle (so it stops once the
-                  // user has joined) and only when motion is allowed.
-                  animate={
-                    reduce || status !== "idle"
-                      ? false
-                      : { scale: [1, 1.06, 1] }
-                  }
-                  transition={
-                    reduce
-                      ? undefined
-                      : {
-                          duration: 1.6,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }
-                  }
-                  // On hover: pop out more and add a strong blue halo.
-                  whileHover={
-                    reduce
-                      ? undefined
-                      : {
-                          scale: 1.1,
-                          boxShadow:
-                            "0 0 40px 6px rgba(139, 172, 255, 0.7), 0 0 80px 12px rgba(139, 172, 255, 0.4)",
-                        }
-                  }
-                  whileTap={{ scale: 0.98 }}
                 >
                   {status === "sending"
                     ? "Sending…"
                     : status === "ok"
                       ? "You're on the list"
                       : "Join the waitlist"}
-                </MotionButton>
+                </Button>
 
                 <div
                   className={
@@ -276,7 +218,7 @@ export function Waitlist() {
                 </p>
               </div>
             </form>
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>

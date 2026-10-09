@@ -1,41 +1,44 @@
-"use client";
-
-import { motion, useReducedMotion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
-import { SPRING } from "@/lib/motion";
 
 // ── Reveal ───────────────────────────────────────────────────────────────
 //
-// One wrapper for every "this should animate into place" use on the page.
+// Plain wrappers that render their children inside a <div>.
 //
-//   trigger="load"   → first-load choreography (no viewport gate)
-//   trigger="inView" → scroll-triggered (default)
+// Earlier versions of this file used framer-motion's `whileInView` to fade
+// and slide each section in as the user scrolled. That looked great in
+// interactive use, but it broke the static export in two ways:
 //
-//   from="top|bottom|left|right|none"
-//     Direction the element comes from. "none" still fades but doesn't slide.
+//   1. React #418 hydration mismatches between the SSR-rendered
+//      `style="opacity:0; transform: translateY(40px)"` and the
+//      client's first render, which prevented framer-motion from
+//      mounting and left the content invisible until manual scroll.
+//   2. Even with hydration working, `whileInView` only fires for
+//      sections that are actually in the viewport. Off-screen
+//      sections stayed at `opacity:0` for fullPage screenshots, for
+//      search-engine crawlers, for users with `prefers-reduced-motion`,
+//      and for anyone trying to print or save the page.
 //
-// Children can be passed in directly. To stagger, wrap a parent in
-// <RevealGroup> with `from` per child or use <RevealItem> inside.
+// The fix is the simplest one: don't animate. The content is always
+// visible. The hero (which sits above the fold and uses
+// framer-motion's `animate` prop, not `whileInView`) keeps its own
+// entrance choreography in `hero.tsx`. The rest of the page is
+// content-first.
+//
+// The `Reveal` / `RevealGroup` / `RevealItem` API is preserved so the
+// call sites in the section components don't have to change. They
+// all just render a <div> now.
 
 type Direction = "top" | "bottom" | "left" | "right" | "none";
 
-const offsets: Record<Direction, { x: number; y: number }> = {
-  top: { x: 0, y: -40 },
-  bottom: { x: 0, y: 40 },
-  left: { x: -40, y: 0 },
-  right: { x: 40, y: 0 },
-  none: { x: 0, y: 0 },
-};
-
 export function Reveal({
   children,
-  from = "bottom",
-  delay = 0,
-  duration = 0.65,
-  amount = 0.2,
   className,
-  trigger = "inView",
-  once = true,
+  from: _from,
+  delay: _delay,
+  duration: _duration,
+  amount: _amount,
+  trigger: _trigger,
+  once: _once,
 }: {
   children: ReactNode;
   from?: Direction;
@@ -46,59 +49,17 @@ export function Reveal({
   trigger?: "inView" | "load";
   once?: boolean;
 }) {
-  const reduce = useReducedMotion();
-  const off = offsets[from];
-
-  // prefers-reduced-motion: just fade. No translation.
-  const initial = reduce ? { opacity: 0 } : { opacity: 0, x: off.x, y: off.y };
-  const show = reduce ? { opacity: 1 } : { opacity: 1, x: 0, y: 0 };
-  // SPRING is the house critically-damped default. The `duration` prop
-  // (default 0.65) is a "response" hint — if the caller passed the
-  // default we let the spring's own 0.4 stand, otherwise we override
-  // it. Reduced-motion branch: short cross-fade, no spring physics.
-  const transition = reduce
-    ? { delay, duration: 0.2, ease: "easeOut" as const }
-    : { delay, ...SPRING, ...(duration !== 0.65 ? { duration } : {}) };
-
-  if (trigger === "load") {
-    return (
-      <motion.div
-        className={className}
-        initial={initial}
-        animate={show}
-        transition={transition}
-      >
-        {children}
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      className={className}
-      initial={initial}
-      whileInView={show}
-      viewport={{ once, amount }}
-      transition={transition}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }
-
-// ── RevealGroup + RevealItem ────────────────────────────────────────────
-//
-// Parent that staggers its children. Each child sets its own `from` so the
-// "puzzle" comes in from multiple sides.
 
 export function RevealGroup({
   children,
-  stagger = 0.09,
-  delay = 0,
   className,
-  trigger = "inView",
-  amount = 0.2,
-  once = true,
+  stagger: _stagger,
+  delay: _delay,
+  trigger: _trigger,
+  amount: _amount,
+  once: _once,
 }: {
   children: ReactNode;
   stagger?: number;
@@ -108,59 +69,19 @@ export function RevealGroup({
   amount?: number;
   once?: boolean;
 }) {
-  const reduce = useReducedMotion();
-  const variants: Variants = {
-    hidden: {},
-    show: {
-      transition: { staggerChildren: reduce ? 0 : stagger, delayChildren: delay },
-    },
-  };
-  const animProps =
-    trigger === "load"
-      ? { initial: "hidden" as const, animate: "show" as const }
-      : {
-          initial: "hidden" as const,
-          whileInView: "show" as const,
-          viewport: { once, amount },
-        };
-  return (
-    <motion.div className={className} variants={variants} {...animProps}>
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 export function RevealItem({
   children,
-  from = "bottom",
-  duration = 0.65,
   className,
+  from: _from,
+  duration: _duration,
 }: {
   children: ReactNode;
   from?: Direction;
   duration?: number;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
-  const off = offsets[from];
-  const variants: Variants = {
-    hidden: reduce ? { opacity: 0 } : { opacity: 0, x: off.x, y: off.y },
-    show: reduce
-      ? {
-          opacity: 1,
-          transition: { duration: 0.2, ease: "easeOut" as const },
-        }
-      : {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          transition:
-            duration === 0.65 ? SPRING : { ...SPRING, duration },
-        },
-  };
-  return (
-    <motion.div className={className} variants={variants}>
-      {children}
-    </motion.div>
-  );
+  return <div className={className}>{children}</div>;
 }

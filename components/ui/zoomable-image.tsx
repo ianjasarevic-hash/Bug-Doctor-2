@@ -2,13 +2,18 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 // ZoomableImage — drop-in replacement for next/image that opens a fullscreen
 // lightbox on click. The lightbox shows the original file, locks body scroll,
-// closes on backdrop click, close button, or Escape. Respects prefers-reduced-
-// motion (no scale-fade, just opacity). Used by all 6 product screenshots on
-// the landing page so the visitor can read the UI at full resolution.
+// closes on backdrop click, close button, or Escape. Used by all 6 product
+// screenshots on the landing page so the visitor can read the UI at full
+// resolution.
+//
+// Earlier versions used framer-motion for the lightbox overlay and image
+// fade/scale. The lightbox only mounts after a user click, so it doesn't
+// contribute to the SSR opacity-0 problem, but the same code is simpler
+// without the motion dependency. The fade is replaced by a CSS opacity
+// transition on mount.
 
 type Props = {
   src: string;
@@ -69,18 +74,15 @@ export function ZoomableImage({
         />
         {showEnlargeHint ? <EnlargeHint /> : null}
       </button>
-      <AnimatePresence>
-        {open && (
-          <Lightbox
-            key={src}
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            onClose={() => setOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {open ? (
+        <Lightbox
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
     </>
   );
 }
@@ -126,8 +128,6 @@ function Lightbox({
   height: number;
   onClose: () => void;
 }) {
-  const reduce = useReducedMotion();
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -141,12 +141,8 @@ function Lightbox({
   }, [onClose]);
 
   return (
-    <motion.div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 sm:p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: reduce ? 0.1 : 0.18, ease: "easeOut" }}
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 sm:p-8 lightbox-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -176,19 +172,16 @@ function Lightbox({
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
-      <motion.img
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={src}
         alt={alt}
         width={width}
         height={height}
         onClick={(e) => e.stopPropagation()}
-        initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-        transition={{ duration: reduce ? 0.1 : 0.22, ease: "easeOut" }}
         className="max-w-[95vw] max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl select-none"
         draggable={false}
       />
-    </motion.div>
+    </div>
   );
 }

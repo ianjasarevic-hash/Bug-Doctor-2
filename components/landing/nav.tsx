@@ -2,51 +2,67 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LinkButton } from "@/components/ui/button";
-import { SPRING, SPRING_GENTLE } from "@/lib/motion";
 import { initSectionFocusTracker } from "@/lib/section-focus";
 
-// Two nav variants.
+// Top navigation.
 //
-//   "home"  – the marketing site. Links use in-page anchors (#library,
-//             #waitlist, #faq). The logo links to "#top" (the <main>
-//             wrapper, which scrolls the page back to the very top).
+// Two variants:
+//   - "home"  : on the marketing site. Primary section links use
+//               in-page anchors (#library, #waitlist, #faq). Legal
+//               links point to /privacy and /terms.
+//   - "legal" : on the privacy and terms pages. Section links are
+//               absolute so the browser navigates to / and scrolls
+//               to the section.
 //
-//   "legal" – the privacy and terms pages. They share the same nav
-//             look but every link points back to the home page, because
-//             the legal pages don't have those sections of their own.
-//             Links are absolute ("/#library") so the browser navigates
-//             to / and scrolls to the section.
-//
-// Privacy and Terms appear in the same list as the other nav links
-// (after FAQ) but in a slightly muted style so they don't compete
-// with the primary page anchors. They always use absolute paths
-// because the legal pages are the only place a user can be on
-// /privacy or /terms.
+// All five links — Problems, Waitlist, FAQ, Privacy, Terms — share
+// the same component (NavLink), the same default class, the same
+// hover state, and the same spacing. The only thing that varies is
+// the active state, which is brighter (text-text) and carries an
+// aria-current="page" for assistive tech. Active is determined by
+// the current pathname:
+//   - on /            : none of the five is active
+//   - on /privacy/    : only Privacy is active
+//   - on /terms/      : only Terms is active
+// In-page anchors (#library, etc.) are never "active" because the
+// user is already on the home page when they click them.
 
-const homeLinks = [
+type NavLinkDef = { href: string; label: string };
+
+const homeLinks: NavLinkDef[] = [
   { href: "#library", label: "Problems" },
   { href: "#waitlist", label: "Waitlist" },
   { href: "#faq", label: "FAQ" },
-];
-
-const legalLinks = [
-  { href: "/#problems", label: "Problems" },
-  { href: "/#waitlist", label: "Waitlist" },
-  { href: "/#faq", label: "FAQ" },
-];
-
-// Legal-only links. Always absolute, always muted.
-const secondaryLinks = [
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
 ];
 
+const legalLinks: NavLinkDef[] = [
+  { href: "/#library", label: "Problems" },
+  { href: "/#waitlist", label: "Waitlist" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+];
+
+// Compare a link's path (without the hash) to the current pathname.
+// In-page anchors and cross-page anchors are never active. Only same-
+// page legal links (e.g. /privacy on the /privacy/ route) are active.
+function isLinkActive(linkHref: string, pathname: string): boolean {
+  if (linkHref.startsWith("#")) return false;
+  const hashIdx = linkHref.indexOf("#");
+  const linkPath = hashIdx === -1 ? linkHref : linkHref.slice(0, hashIdx);
+  if (linkPath === "") return false; // bare "/" or in-page anchor
+  // Normalise trailing slashes: "/privacy" and "/privacy/" both match.
+  const norm = (p: string) => p.replace(/\/+$/, "") || "/";
+  return norm(linkPath) === norm(pathname);
+}
+
 export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
   const [scrolled, setScrolled] = useState(false);
-  const reduce = useReducedMotion();
+  const pathname = usePathname() ?? "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -55,7 +71,7 @@ export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Start the hashchange → section-spotlight pipeline. The same
+  // Start the hashchange -> section-spotlight pipeline. The same
   // tracker that handles in-page # links on the home page also
   // handles # links on the legal pages (ToC anchors), so it should
   // run everywhere the Nav mounts.
@@ -67,44 +83,28 @@ export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
   const logoHref = variant === "legal" ? "/" : "#top";
   const ctaHref = variant === "legal" ? "/#waitlist" : "#waitlist";
 
+  const headerClass = [
+    "sticky top-0 z-50 transition-colors duration-200",
+    scrolled
+      ? "bg-bg/70 backdrop-blur-xl backdrop-saturate-150 border-b border-border/60 frosted"
+      : "bg-transparent border-b border-transparent",
+  ].join(" ");
+
   return (
-    <motion.header
-      className={[
-        "sticky top-0 z-50 transition-colors duration-200",
-        scrolled
-          ? "bg-bg/70 backdrop-blur-xl backdrop-saturate-150 border-b border-border/60 frosted"
-          : "bg-transparent border-b border-transparent",
-      ].join(" ")}
-      initial={reduce ? false : { y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const }
-          : { delay: 0.1, ...SPRING_GENTLE }
-      }
-    >
+    <header className={headerClass}>
       <div className="px-6 md:px-10">
         <div className="h-16 flex items-center justify-between gap-4">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const }
-                : { delay: 0.25, ...SPRING }
-            }
-            className="-ml-1"
-          >
+          <div className="-ml-1">
             <Link
               href={logoHref}
               aria-label="bug.dr home"
               className="flex items-center gap-2 p-1"
             >
-              {/* Absolute path with leading "/" so the logo resolves
-                  from every route (the home page, /privacy/, /terms/).
-                  Using next/image rather than a plain <img> so the
-                  basePath (set in production to "/BugDoctor") is
-                  prepended automatically. With images.unoptimized
+              {/* Relative path (no leading "/") so the logo resolves
+                  from every route on the GitHub Pages site
+                  (the home page, /privacy/, /terms/). Using next/image
+                  so the basePath (set in production to "/BugDoctor")
+                  is prepended automatically. With images.unoptimized
                   (set in next.config.mjs for the static export) this
                   just renders a regular <img> at build time. */}
               <Image
@@ -116,76 +116,46 @@ export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
                 priority
               />
             </Link>
-          </motion.div>
-
+          </div>
           <nav
             aria-label="Primary"
-            className="hidden md:flex items-center gap-6"
+            className="flex items-center gap-3 sm:gap-4 md:gap-6"
           >
-            {links.map((l, i) => (
-              <motion.div
-                key={l.href}
-                initial={reduce ? false : { opacity: 0, y: -16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={
-                  reduce
-                    ? { duration: 0.2, ease: "easeOut" as const }
-                    : { delay: 0.35 + i * 0.08, ...SPRING }
-                }
-              >
+            {links.map((l) => {
+              const active = isLinkActive(l.href, pathname);
+              return (
                 <Link
+                  key={l.label}
                   href={l.href}
-                  className="group relative text-sm text-muted hover:text-text transition-colors"
+                  aria-current={active ? "page" : undefined}
+                  className={[
+                    "group relative text-[12.5px] sm:text-[13px] md:text-sm transition-colors",
+                    active
+                      ? "text-text"
+                      : "text-muted hover:text-text",
+                  ].join(" ")}
                 >
                   {l.label}
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-text/70 transition-transform duration-200 group-hover:scale-x-100"
+                    className={[
+                      "pointer-events-none absolute -bottom-1 left-0 h-px w-full origin-left bg-text/70 transition-transform duration-200",
+                      active
+                        ? "scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100",
+                    ].join(" ")}
                   />
                 </Link>
-              </motion.div>
-            ))}
-            {/* Secondary links — Privacy and Terms. Slightly smaller and
-                more muted than the primary links so they don't compete
-                with the page anchors. Always absolute paths so they
-                work from both home and legal pages. */}
-            {secondaryLinks.map((l, i) => (
-              <motion.div
-                key={l.href}
-                initial={reduce ? false : { opacity: 0, y: -16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={
-                  reduce
-                    ? { duration: 0.2, ease: "easeOut" as const }
-                    : { delay: 0.6 + i * 0.08, ...SPRING }
-                }
-              >
-                <Link
-                  href={l.href}
-                  className="text-[12.5px] text-muted/70 hover:text-muted transition-colors"
-                >
-                  {l.label}
-                </Link>
-              </motion.div>
-            ))}
+              );
+            })}
           </nav>
-
-          <motion.div
-            className="flex items-center gap-1"
-            initial={reduce ? false : { opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={
-              reduce
-                ? { duration: 0.2, ease: "easeOut" as const }
-                : { delay: 0.55, ...SPRING }
-            }
-          >
+          <div className="flex items-center gap-1">
             <LinkButton href={ctaHref} size="md">
               Join waitlist
             </LinkButton>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

@@ -1,17 +1,21 @@
-"use client";
-
-import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
-import { SPRING_GENTLE } from "@/lib/motion";
 
-// Full-width slot section for the two product shots that don't otherwise
-// have a home on the page: contests and dashboard. profile.png lives in
-// the RolesAndProfile section to the right of the role chips. Cards stack
-// full width, one per row, so the screenshots are readable at their
-// natural size. Same frame pattern (`rounded-xl border border-border
-// bg-surface shadow-card overflow-hidden`) as the other slots.
+// "Contests and your dashboard" — full-width slot section for the two
+// product shots that don't otherwise have a home on the page. profile.png
+// lives in the RolesAndProfile section to the right of the role chips.
+// Cards stack full width, one per row, so the screenshots are readable
+// at their natural size. Same frame pattern (`rounded-xl border
+// border-border bg-surface shadow-card overflow-hidden`) as the other
+// slots.
+//
+// Earlier versions used framer-motion's `whileInView` to slide the
+// section header and each card in from alternating sides. On the static
+// export the SSR HTML rendered them at `opacity:0` with a translate, and
+// the IntersectionObserver only fired for content that was actually in
+// the viewport. Off-screen content stayed invisible in fullPage
+// screenshots, for crawlers, and for anyone trying to print the page.
+// The fix: render plain HTML. The content is always visible.
 
 type Feature = {
   label: string;
@@ -47,7 +51,6 @@ const features: Feature[] = [
 ];
 
 export function Features() {
-  const reduce = useReducedMotion();
   return (
     <section
       id="features"
@@ -55,17 +58,7 @@ export function Features() {
       className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
-        <motion.div
-          className="max-w-2xl"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const }
-              : { ...SPRING_GENTLE }
-          }
-        >
+        <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             More from the app
           </p>
@@ -79,11 +72,11 @@ export function Features() {
             Two more screens. The clock you compete on, and the screen that
             greets you when you sign in.
           </p>
-        </motion.div>
+        </div>
 
         <div className="mt-14 flex flex-col gap-10">
-          {features.map((f, i) => (
-            <FeatureCard key={f.src} feature={f} index={i} />
+          {features.map((f) => (
+            <FeatureCard key={f.src} feature={f} />
           ))}
         </div>
       </Container>
@@ -91,28 +84,9 @@ export function Features() {
   );
 }
 
-function FeatureCard({
-  feature,
-  index,
-}: {
-  feature: Feature;
-  index: number;
-}) {
-  const reduce = useReducedMotion();
-  const from = index % 2 === 0 ? "left" : "right";
-  const x = from === "left" ? -40 : 40;
+function FeatureCard({ feature }: { feature: Feature }) {
   return (
-    <motion.figure
-      initial={{ opacity: 0, x: reduce ? 0 : x, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const }
-          : { ...SPRING_GENTLE }
-      }
-      className="rounded-xl border border-border bg-surface shadow-card overflow-hidden"
-    >
+    <figure className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
       <div className="p-6 border-b border-border">
         <p className="font-mono text-xs uppercase tracking-widest text-action">
           {feature.label}
@@ -136,6 +110,6 @@ function FeatureCard({
         // would just be visual noise.
         showEnlargeHint={feature.label === "Dashboard"}
       />
-    </motion.figure>
+    </figure>
   );
 }

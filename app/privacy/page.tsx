@@ -109,40 +109,34 @@ const sections: LegalSection[] = [
         <p>
           We use a small number of processors to run bug.dr. Each one
           receives only the data it needs to do its job, under a written
-          data-processing agreement [CONFIRM].
+          data-processing agreement.
         </p>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
-            <strong>[HOSTING PROVIDER]</strong> hosts the application and
-            your workspace data.
+            <strong>Railway</strong> hosts the application and your
+            workspace data.
           </li>
           <li>
-            <strong>[EMAIL PROVIDER]</strong> sends the waitlist and
-            transactional emails.
-          </li>
-          <li>
-            <strong>[AI PROVIDER]</strong> receives your prompts and the
-            code context sent to the assistant. The AI provider returns a
-            response and may keep a temporary record for safety and abuse
-            monitoring. We do not send it your account email or your full
-            workspace history, only what the assistant needs to answer
-            your current question [CONFIRM] [CONFIRM] whether the AI
-            provider trains on prompts and code, and add or remove this
-            clause to match.
+            <strong>Anthropic and OpenAI</strong> receive your prompts and
+            the code context sent to the assistant. They return a response
+            and may keep a temporary record for safety and abuse
+            monitoring. We do not send them your account email or your
+            full workspace history, only what the assistant needs to
+            answer your current question. Neither Anthropic nor OpenAI
+            trains on API prompts by default.
           </li>
         </ul>
         <p>
           <strong>International transfers.</strong> Some of these
           processors may store or process data outside the European
           Economic Area. Where that happens, we rely on{" "}
-          <strong>[CONFIRM safeguards, e.g. European Commission
-          adequacy decision or Standard Contractual Clauses]</strong> to
-          protect your data.
+          <strong>Standard Contractual Clauses (SCCs)</strong> to protect
+          your data.
         </p>
         <p>
           You decide whether to share your profile. We do not send your
           profile or scores to employers or recruiters unless you share it
-          or ask us to [CONFIRM].
+          or ask us to.
         </p>
       </>
     ),
@@ -154,19 +148,20 @@ const sections: LegalSection[] = [
       <>
         <p>
           <strong>Waitlist.</strong> Until we have sent the launch emails,
-          plus a short grace period of <strong>[CONFIRM]</strong>, or until
-          you ask us to delete your entry, whichever comes first.
+          plus a short grace period of <strong>30 days after launch emails
+          are sent</strong>, or until you ask us to delete your entry,
+          whichever comes first.
         </p>
         <p>
           <strong>Account and workspace data.</strong> For as long as your
           account is active. When you delete your account, we delete
-          personal data within <strong>[CONFIRM]</strong>, except where
-          we have to keep certain records for tax, accounting, or
-          legal-hold reasons.
+          personal data within <strong>30 days</strong>, except where we
+          have to keep certain records for tax, accounting, or legal-hold
+          reasons.
         </p>
         <p>
           <strong>Backups.</strong> Encrypted backups are kept for{" "}
-          <strong>[CONFIRM]</strong> and then rotated out.
+          <strong>30 days</strong> and then rotated out.
         </p>
       </>
     ),
@@ -176,7 +171,7 @@ const sections: LegalSection[] = [
     title: "Cookies and analytics",
     body: (
       <p>
-        <strong>[ANALYTICS: none or provider]</strong>.
+        <strong>We do not use third-party analytics.</strong>
       </p>
     ),
   },
@@ -227,11 +222,10 @@ const sections: LegalSection[] = [
       <>
         <p>
           We protect your data with reasonable technical and
-          organisational measures: encryption in transit (TLS) [CONFIRM],
-          encryption at rest [CONFIRM], access controls on operator
-          accounts [CONFIRM], audit logs for sensitive actions [CONFIRM],
-          and regular review of our processors [CONFIRM]. No system is
-          perfectly secure, but we work to keep your data safe.
+          organisational measures: encryption in transit (TLS), encryption
+          at rest, access controls on operator accounts, audit logs for
+          sensitive actions, and regular review of our processors. No
+          system is perfectly secure, but we work to keep your data safe.
         </p>
         <p>
           If we become aware of a personal data breach that is likely

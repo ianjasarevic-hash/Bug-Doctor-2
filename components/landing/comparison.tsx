@@ -1,9 +1,17 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import { Check, Cross } from "@/components/landing/icons";
 import { Container } from "@/components/landing/container";
-import { SPRING_GENTLE, SPRING_SNAPPY } from "@/lib/motion";
+
+// The "Interview vs bug.dr" comparison table.
+//
+// Earlier versions used framer-motion's `whileInView` to slide each row in
+// from alternating sides. That looked nice interactively, but on the
+// static export the SSR HTML rendered the rows at `opacity:0; transform:
+// translateX(±50px)` and the IntersectionObserver only fired for rows that
+// were actually in the viewport. Off-screen rows stayed invisible in
+// fullPage screenshots, for crawlers, and for anyone printing the page.
+//
+// The fix is the same one used across the rest of the site: render plain
+// HTML. The content is always visible. The rows are not animated.
 
 type Row = {
   label: string;
@@ -45,13 +53,7 @@ const rows: Row[] = [
   },
 ];
 
-// Per-row entry direction. Alternates sides so the rows "puzzle" into place
-// from left, right, left, right, left as the user scrolls.
-const rowFrom: ("left" | "right")[] = ["left", "right", "left", "right", "left"];
-
 export function Comparison() {
-  const reduce = useReducedMotion();
-
   return (
     <section
       id="problems"
@@ -59,18 +61,8 @@ export function Comparison() {
       className="relative py-24 sm:py-32"
     >
       <Container>
-        {/* Section header — comes from top */}
-        <motion.div
-          className="max-w-2xl"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const }
-              : { ...SPRING_GENTLE }
-          }
-        >
+        {/* Section header */}
+        <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             The problem
           </p>
@@ -85,118 +77,56 @@ export function Comparison() {
             how someone uses AI on a real codebase. We test the work that
             matters.
           </p>
-        </motion.div>
+        </div>
 
         {/* Comparison table */}
-        <motion.div
-          className="mt-12 rounded-xl border border-border bg-surface shadow-card overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.15 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const }
-              : { delay: 0.1, ...SPRING_GENTLE }
-          }
-        >
+        <div className="mt-12 rounded-xl border border-border bg-surface shadow-card overflow-hidden">
           {/* Header row */}
           <div className="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 border-b border-border font-mono text-xs uppercase tracking-wider text-muted">
             <div className="col-span-4">Dimension</div>
             <div className="col-span-4">The interview</div>
             <div className="col-span-4 relative text-action">
               bug.dr
-              {/* Subtle pulsing highlight under the bug.dr column header.
-                  Uses scaleX (transform) instead of width (layout) so the
-                  animation never triggers a layout/paint pass. origin-left
-                  makes it grow from the left edge like text being written. */}
-              {!reduce && (
-                <motion.span
-                  aria-hidden
-                  className="absolute -bottom-1 left-0 h-0.5 bg-action origin-left"
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ delay: 0.5, ...SPRING_GENTLE }}
-                />
-              )}
+              <span
+                aria-hidden
+                className="absolute -bottom-1 left-0 h-0.5 w-full bg-action/60"
+              />
             </div>
           </div>
 
-          {rows.map((row, i) => (
-            <ComparisonRow
-              key={row.label}
-              row={row}
-              from={rowFrom[i]}
-              delay={i * 0.09}
-            />
+          {rows.map((row) => (
+            <ComparisonRow key={row.label} row={row} />
           ))}
-        </motion.div>
+        </div>
       </Container>
     </section>
   );
 }
 
-function ComparisonRow({
-  row,
-  from,
-  delay,
-}: {
-  row: Row;
-  from: "left" | "right";
-  delay: number;
-}) {
-  const reduce = useReducedMotion();
-  const x = from === "left" ? -50 : 50;
-
+function ComparisonRow({ row }: { row: Row }) {
   return (
-    <motion.div
-      className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-5 border-b border-border last:border-b-0 relative"
-      initial={{ opacity: 0, x: reduce ? 0 : x }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.4 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const, delay }
-          : { delay, ...SPRING_GENTLE }
-      }
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-6 py-5 border-b border-border last:border-b-0 relative">
       <div className="sm:col-span-4 font-mono text-xs uppercase tracking-wider text-muted">
         {row.label}
       </div>
       <div className="sm:col-span-4 text-muted flex items-start gap-2">
-        <motion.span
-          className="mt-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-diffImpossible/10 text-diffImpossible ring-1 ring-diffImpossible/40"
+        <span
           aria-hidden
-          initial={{ scale: 0, rotate: -90 }}
-          whileInView={{ scale: 1, rotate: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const, delay: delay + 0.15 }
-              : { delay: delay + 0.15, ...SPRING_SNAPPY }
-          }
+          className="mt-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-diffImpossible/10 text-diffImpossible ring-1 ring-diffImpossible/40"
         >
           <Cross size={11} />
-        </motion.span>
+        </span>
         <span className="text-[15px]">{row.interview}</span>
       </div>
       <div className="sm:col-span-4 flex items-start gap-2 relative">
-        <motion.span
-          className="mt-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40"
+        <span
           aria-hidden
-          initial={{ scale: 0, rotate: 90 }}
-          whileInView={{ scale: 1, rotate: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const, delay: delay + 0.25 }
-              : { delay: delay + 0.25, ...SPRING_SNAPPY }
-          }
+          className="mt-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-action/15 text-action ring-1 ring-action/40"
         >
           <Check size={11} />
-        </motion.span>
+        </span>
         <span className="text-[15px] text-text">{row.bugdr}</span>
       </div>
-    </motion.div>
+    </div>
   );
 }

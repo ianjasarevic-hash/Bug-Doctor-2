@@ -1,8 +1,6 @@
 // Single source of truth for the operator identity. Used by the
 // /privacy and /terms pages (their "Who we are" identity section)
-// and by the shared footer / legal-page intro. All fields except
-// `registrationId` are bracketed placeholders until the operator
-// details are filled in.
+// and by the shared footer / legal-page intro.
 //
 // `isPlaceholder` returns true for any field that still has the
 // "[ALL CAPS]" placeholder format. The footer uses this to render a
@@ -18,9 +16,12 @@
 // detected.
 
 export const operator = {
-  name: "[OPERATOR NAME]",
-  address: "[ADDRESS]",
-  email: "[CONTACT EMAIL]",
+  // Natural person operating bug.dr (s.p. form not yet registered).
+  // Replace the address string below with the registered address
+  // when the s.p. registration is finalised.
+  name: "Anže Pišlar",
+  address: "[STILL NEEDED - full street address]",
+  email: "privacy@bugdr.app",
   registrationId: "",
 } as const;
 
@@ -31,5 +32,5 @@ export function isPlaceholder(value: string): boolean {
   // haven't been filled in yet. An empty string is not a placeholder
   // — it means the field is intentionally unset (e.g. registration
   // id) and should not be rendered at all.
-  return /^\[[A-Z0-9][A-Z0-9 _,-]*\]$/.test(value);
+  return /^\[[A-Z0-9][A-Z0-9 _,\.\(\)\-:]*\]$/.test(value);
 }

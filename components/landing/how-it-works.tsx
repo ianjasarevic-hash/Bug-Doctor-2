@@ -1,11 +1,17 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/landing/container";
 import { type Line, TONE_CLASS } from "@/components/landing/code-block";
 import { Check } from "@/components/landing/icons";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
-import { SPRING_GENTLE } from "@/lib/motion";
+
+// How it works — three steps: Diagnose. Treat. Submit.
+//
+// Earlier versions used framer-motion's `whileInView` to slide each step
+// in from alternating sides. On the static export the SSR HTML rendered
+// each step at `opacity:0` with a translate, and the IntersectionObserver
+// only fired for steps that were actually in the viewport. Off-screen
+// steps stayed invisible in fullPage screenshots, for crawlers, and for
+// anyone trying to print the page. The fix: render plain HTML. The
+// content is always visible.
 
 // Real acceptance checks from the Payment retries problem (problem-detail.png).
 // Used by step 03 (the static checks card). HeroIDE exports its own copy so
@@ -22,7 +28,6 @@ const acceptanceChecks: { label: string }[] = [
 ];
 
 export function HowItWorks() {
-  const reduce = useReducedMotion();
   const items = [
     {
       n: "01",
@@ -31,8 +36,6 @@ export function HowItWorks() {
       body:
         "Open the case file. A real bug report, a stack trace, the production error. The timer starts on Start. Nobody can leak the fix in comments until you solve it.",
       visual: <ProblemDetailShot />,
-      copyFrom: "left" as const,
-      visualFrom: "right" as const,
     },
     {
       n: "02",
@@ -40,13 +43,7 @@ export function HowItWorks() {
       title: "Fix it in the browser.",
       body:
         "Open the codebase in the browser. Editor, terminal and an AI assistant in one workspace. Trace the bug, ask the AI for a fix, ship a real diff. Your prompts, tokens and runs are tracked as you work.",
-      // Same two-line diff the user sees animated in the hero, but rendered
-      // as a small static card so the section doesn't compete with the
-      // hero's animation. No tabs, no code editor, no AI prompt — just the
-      // lines that fix the retry loop.
       visual: <StaticDiffCard />,
-      copyFrom: "right" as const,
-      visualFrom: "left" as const,
     },
     {
       n: "03",
@@ -55,8 +52,6 @@ export function HowItWorks() {
       body:
         "Submit and the acceptance checks run one by one. Pass them all and the problem is solved. Correctness and reliability weigh most, then code quality, verification, time and AI efficiency. Your first successful result is final.",
       visual: <StaticChecksCard />,
-      copyFrom: "left" as const,
-      visualFrom: "right" as const,
     },
   ];
 
@@ -67,17 +62,7 @@ export function HowItWorks() {
       className="relative py-24 sm:py-32 divider-top"
     >
       <Container>
-        <motion.div
-          className="max-w-2xl"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={
-            reduce
-              ? { duration: 0.2, ease: "easeOut" as const }
-              : { ...SPRING_GENTLE }
-          }
-        >
+        <div className="max-w-2xl">
           <p className="font-mono text-xs uppercase tracking-widest text-action">
             How it works
           </p>
@@ -91,7 +76,7 @@ export function HowItWorks() {
             Every case follows the same three steps. Read the incident, ship
             the fix, prove it on the acceptance checks.
           </p>
-        </motion.div>
+        </div>
 
         <ol className="mt-14 space-y-16">
           {items.map((item) => (
@@ -99,92 +84,25 @@ export function HowItWorks() {
               key={item.n}
               className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
             >
-              <HowCopy
-                n={item.n}
-                label={item.label}
-                title={item.title}
-                body={item.body}
-                from={item.copyFrom}
-              />
-              <HowVisual from={item.visualFrom}>{item.visual}</HowVisual>
+              <div className="lg:col-span-5">
+                <div className="font-mono text-sm text-muted">
+                  <span className="text-action">{item.n}</span>
+                  <span aria-hidden> · </span>
+                  <span className="uppercase tracking-wider">{item.label}</span>
+                </div>
+                <h3 className="mt-2 text-2xl sm:text-3xl font-semibold text-headline">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-muted text-lg leading-relaxed">
+                  {item.body}
+                </p>
+              </div>
+              <div className="lg:col-span-7">{item.visual}</div>
             </li>
           ))}
         </ol>
       </Container>
     </section>
-  );
-}
-
-function HowCopy({
-  n,
-  label,
-  title,
-  body,
-  from,
-}: {
-  n: string;
-  label: string;
-  title: string;
-  body: string;
-  from: "left" | "right";
-}) {
-  const reduce = useReducedMotion();
-  const x = from === "left" ? -60 : 60;
-  return (
-    <motion.div
-      className="lg:col-span-5"
-      initial={{ opacity: 0, x: reduce ? 0 : x, y: 20 }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const }
-          : { ...SPRING_GENTLE }
-      }
-    >
-      <div className="font-mono text-sm text-muted">
-        <span className="text-action">{n}</span>
-        <span aria-hidden> · </span>
-        <span className="uppercase tracking-wider">{label}</span>
-      </div>
-      <h3 className="mt-2 text-2xl sm:text-3xl font-semibold text-headline">
-        {title}
-      </h3>
-      <p className="mt-3 text-muted text-lg leading-relaxed">{body}</p>
-    </motion.div>
-  );
-}
-
-function HowVisual({
-  from,
-  children,
-}: {
-  from: "left" | "right" | "top" | "bottom";
-  children: React.ReactNode;
-}) {
-  const reduce = useReducedMotion();
-  const off =
-    from === "left"
-      ? { x: -60, y: 0 }
-      : from === "right"
-        ? { x: 60, y: 0 }
-        : from === "top"
-          ? { x: 0, y: -40 }
-          : { x: 0, y: 40 };
-  return (
-    <motion.div
-      className="lg:col-span-7"
-      initial={{ opacity: 0, x: reduce ? 0 : off.x, y: reduce ? 0 : off.y }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={
-        reduce
-          ? { duration: 0.2, ease: "easeOut" as const, delay: 0.1 }
-          : { delay: 0.1, ...SPRING_GENTLE }
-      }
-    >
-      {children}
-    </motion.div>
   );
 }
 
@@ -212,7 +130,6 @@ function ProblemDetailShot() {
 // animated in the hero, without the editor chrome or the ask-ai line.
 // Just the diff header and the two added lines that fix the retry loop
 // (idempotency key on charge, exponential backoff after a failed attempt).
-// No animation — the section already has scroll-in motion from HowVisual.
 //
 // The two lines are kept in lock-step with the hero's `addedCode` in
 // `components/landing/hero.tsx`. If one is edited, the other must be too.
