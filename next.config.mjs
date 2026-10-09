@@ -9,10 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Serve from /BugDoctor/ when the repo is the project site root.
-  // (No basePath locally; only needed for production URLs that aren't
-  // hosted at the apex of the domain.)
-  basePath: process.env.GITHUB_PAGES ? "/BugDoctor" : "",
+  // Serve from the configured base path when the site is hosted on
+  // GitHub Pages under a project URL (e.g. /BugDoctor or
+  // /Bug-Doctor-2). Override with the BASE_PATH env var per build;
+  // defaults to /BugDoctor when GITHUB_PAGES=1 is set without an
+  // explicit BASE_PATH. Empty in dev so /logos/foo.png resolves to
+  // the local server root.
+  basePath:
+    process.env.BASE_PATH ||
+    (process.env.GITHUB_PAGES ? "/BugDoctor" : ""),
   trailingSlash: true,
 };
 

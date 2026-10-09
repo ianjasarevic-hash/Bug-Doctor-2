@@ -25,7 +25,7 @@ export const operator = {
   // rendered HTML is not possible.
   name: "Anže Pišlar",
   address: "[STILL NEEDED - full street address]",
-  email: "[CONTACT EMAIL]",
+  email: "privacy@bugdr.app",
   registrationId: "",
 } as const;
 
