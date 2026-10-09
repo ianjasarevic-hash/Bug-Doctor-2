@@ -165,7 +165,7 @@ function ProfileShot() {
       }
     >
       <ZoomableImage
-        src="/screenshots/profile.png"
+        src="screenshots/profile.png"
         alt="bug.dr profile page showing points, current level, current streak, a twelve-month activity grid and a list of solved problems."
         width={1600}
         height={1329}

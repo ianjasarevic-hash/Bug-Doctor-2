@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check-legal": "node scripts/check-legal-placeholders.js"
+    "check-legal": "node scripts/check-legal-placeholders.js",
+    "deploy": "gh-pages -d out -b gh-pages --nojekyll"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",
@@ -21,6 +22,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.20",
+    "gh-pages": "^6.3.0",
     "playwright": "^1.63.0",
     "postcss": "^8.4.49",
     "sharp": "^0.35.5",

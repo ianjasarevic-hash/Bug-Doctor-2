@@ -108,7 +108,7 @@ export function Nav({ variant = "home" }: { variant?: "home" | "legal" }) {
                   (set in next.config.mjs for the static export) this
                   just renders a regular <img> at build time. */}
               <Image
-                src="/logos/primary-lockup.png"
+                src="logos/primary-lockup.png"
                 alt="bug.dr"
                 width={108}
                 height={28}

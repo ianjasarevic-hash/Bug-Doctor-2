@@ -196,7 +196,7 @@ function ProblemDetailShot() {
   return (
     <div className="rounded-xl border border-border bg-surface shadow-card overflow-hidden">
       <ZoomableImage
-        src="/screenshots/problem-detail.png"
+        src="screenshots/problem-detail.png"
         alt="Payment retries problem page showing the assignment, incident log and acceptance checks."
         width={1570}
         height={1600}

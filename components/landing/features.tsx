@@ -29,7 +29,7 @@ const features: Feature[] = [
     title: "Compete on a shared clock.",
     body:
       "Daily, weekly and monthly incidents with countdowns and a history of what you shipped.",
-    src: "/screenshots/contests.png",
+    src: "screenshots/contests.png",
     alt: "Contests page showing live daily, weekly and monthly incidents with countdowns and a contest history table.",
     width: 1600,
     height: 1327,
@@ -39,7 +39,7 @@ const features: Feature[] = [
     title: "Pick up where you left off.",
     body:
       "The moment you sign in: live contests, the problem you were last in, recommended for you, and your progress at a glance.",
-    src: "/screenshots/dashboard.png",
+    src: "screenshots/dashboard.png",
     alt: "Dashboard greeting the user by name, surfacing live contests, a recommended-for-you problem list and a progress sidebar.",
     width: 1600,
     height: 817,

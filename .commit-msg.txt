@@ -1,0 +1,14 @@
+Use relative public-asset paths; add gh-pages deploy
+
+The static export is served at /BugDoctor/, so hardcoded
+"/logos/..." and "/screenshots/..." srcs resolved to
+https://<host>/logos/... (404) instead of /BugDoctor/logos/...
+Switched the four landing components and the features section
+to relative paths so the same build works in dev (resolved
+against the dev server) and in production (resolved against
+the current page).
+
+Also added `gh-pages` as a dev dep and a `deploy` script that
+publishes out/ to the gh-pages branch with Jekyll disabled.
+
+Co-Authored-By: Claude Code <noreply@anthropic.com>

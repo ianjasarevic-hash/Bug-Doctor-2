@@ -55,7 +55,7 @@ export function ProblemLibrary() {
           }
         >
           <ZoomableImage
-            src="/screenshots/problems.png"
+            src="screenshots/problems.png"
             alt="bug.dr problems library with search and filters for role, difficulty, topic and status, showing a grid of problem cards."
             width={1600}
             height={1173}
