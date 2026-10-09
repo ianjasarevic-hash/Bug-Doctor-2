@@ -11,4 +11,4 @@ _shots
 inspect-*.cjs
 shoot-*.cjs
 verify-*.cjs
-make-og.cjs
+make-og.cjs.commit-msg.txt
