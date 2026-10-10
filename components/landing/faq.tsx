@@ -42,6 +42,10 @@ const faqs = [
     q: "When will bug.dr launch?",
     a: "October 21, 2026. Join the waitlist and we will email you the link the moment we go live, plus a heads-up the night before. If you are hiring and want early access for your team, mention that in the 'why you'd use it' field.",
   },
+  {
+    q: "Is bug.dr free?",
+    a: "Yes, you can start for free. Pro adds career paths and AI feedback on every problem. Payments open after launch.",
+  },
 ];
 
 export function Faq() {

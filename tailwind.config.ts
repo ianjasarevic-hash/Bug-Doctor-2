@@ -24,6 +24,19 @@ export default {
         diffMedium: "#E0B265",      // amber
         diffHard: "#E58958",        // orange
         diffImpossible: "#E5739A",  // pink / red
+        // Good / warn / bad — used by the AI feedback card to color the
+        // "your" bars and the delta chips (better/worse-than-top-performers).
+        good: "#7BD88F",
+        warn: "#F2C14E",
+        bad: "#FF6B6B",
+        // Score-band colors for the example scorecard. Muted, in the
+        // same saturation as the accent (periwinkle) so the card's
+        // score row reads as one design system. `scoreStrong` for
+        // scores >= 90, `scoreWarm` for scores < 80. The 80-89 band
+        // reuses `action` so the three-band palette shares one
+        // accent family.
+        scoreStrong: "#88C9A1",
+        scoreWarm: "#E0B265",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],

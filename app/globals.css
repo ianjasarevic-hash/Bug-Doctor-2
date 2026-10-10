@@ -10,6 +10,12 @@
   --primary-foreground: #151618;
   --text: #F2F3F5;
   --text-muted: #ACB2BE;
+  /* Good / warn / bad — used by the AI feedback card. Tailwind tokens
+     `good`, `warn`, `bad` and the inline `var(...)` pattern below both
+     resolve to the same hex. */
+  --good: #7BD88F;
+  --warn: #F2C14E;
+  --bad: #FF6B6B;
 }
 
 html {
